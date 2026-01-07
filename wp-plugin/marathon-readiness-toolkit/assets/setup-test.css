@@ -1,0 +1,12 @@
+/* Scoped styles for the setup test */
+#mrt-setup-test {
+  padding: 16px;
+  border: 2px dashed #999;
+  border-radius: 12px;
+  max-width: 560px;
+}
+
+#mrt-setup-test #mrt-setup-test-output {
+  margin-top: 12px;
+  font-weight: 700;
+}
