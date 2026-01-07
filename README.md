@@ -98,4 +98,6 @@ Rather than prescribing training plans or enforcing tasks, the tools encourage l
 
 By presenting improvement as ranges and scenarios, rather than guarantees, the toolkit aims to preserve realistic hope while avoiding false promises. Runners can see whether their goal remains aligned, a stretch, or currently out of range — and understand that these states can change over time.
 
-Because the outputs evolve meaningfully as race day approaches, the toolkit creates na
+Because the outputs evolve meaningfully as race day approaches, the toolkit creates natural repeat-visit triggers throughout a marathon build. These moments encourage users to return, reflect, and share experiences within the community. The tools provide context, while the community provides lived experience, reinforcing each other.
+
+From a platform perspective, the goal is to increase retention during long training cycles, reduce anxiety-driven churn, and position the site as a trusted orientation resource rather than a prescriptive training authority.
