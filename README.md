@@ -60,6 +60,14 @@ These principles guide all modules in this repo:
 - **Modular by default:** each tool is useful on its own and composable later
 - **Progress over perfection:** direction and consistency matter more than isolated results
 
+## Localization & Language Strategy
+
+This project is intentionally designed to support multiple languages without duplicating logic or maintaining separate codebases.
+
+All modules are developed in English as the source language within this repository to keep the codebase readable, portable, and aligned with common developer workflows. Text content is separated from application logic and injected at runtime using a lightweight localization layer.
+
+When integrated into WordPress, the same modules render a Chinese user interface by switching the presentation language based on the site’s language context. The underlying HTML structure, JavaScript logic, and calculation methods remain identical across languages.
+
 ## Planned Modules (each module answers one specific runner question)
 
 **1. Race Time Estimator (“What marathon time range am I realistically capable of right now?”)**  
@@ -101,3 +109,4 @@ By presenting improvement as ranges and scenarios, rather than guarantees, the t
 Because the outputs evolve meaningfully as race day approaches, the toolkit creates natural repeat-visit triggers throughout a marathon build. These moments encourage users to return, reflect, and share experiences within the community. The tools provide context, while the community provides lived experience, reinforcing each other.
 
 From a platform perspective, the goal is to increase retention during long training cycles, reduce anxiety-driven churn, and position the site as a trusted orientation resource rather than a prescriptive training authority.
+
