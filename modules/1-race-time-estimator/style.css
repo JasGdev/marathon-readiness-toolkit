@@ -1,54 +1,200 @@
+#race-time-estimator {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  color: #111827;
+}
 
+/* Card container*/
+#race-time-estimator .rte-card{
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 14px;
+  box-sizing: border-box;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+}
 
-#race-time-estimator{
-  margin: 0;
+/* Rows stack nicely on mobile */
+#race-time-estimator .rte-row{
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+#race-time-estimator .rte-label{
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Inputs should be big enough to tap */
+#race-time-estimator .rte-select,
+#race-time-estimator .rte-time-input{
+  font-size: 16px; /* prevents iOS zoom */
+  height: 44px;    /* good tap target */
+  border-radius: 12px;
+  border: 1px solid #d1d5db;
+  padding: 0 12px;
+  box-sizing: border-box;
+  background: #fff;
+  color: inherit;
+}
+
+/* Time group */
+#race-time-estimator .rte-time{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#race-time-estimator .rte-time-input{
+  width: clamp(3.2rem, 18vw, 4.4rem);
+  text-align: center;
   padding: 0;
 }
 
-#race-time-estimator *, .mrt-header-links{
-    margin: 0px;
-    padding: 0px;
-
+#race-time-estimator .rte-sep{
+  font-weight: 700;
+  opacity: 0.7;
 }
 
-/* sets the background color */
-#race-time-estimator .mrt-header {
-    background-color: #1f2937;
+/* Button */
+#race-time-estimator .rte-btn{
+  width: 100%;
+  height: 46px;
+  border: 0;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  background: #111827;
+  color: #ffffff;
+}
+
+/* Output area */
+#race-time-estimator .rte-result{
+  margin-top: 14px;
+  padding: 14px 12px;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  background: #ececec;
+  text-align: center;
+}
+
+#race-time-estimator .rte-result-title{
+  font-size: 15px;
+  font-weight: 700;
+  opacity: 0.75;
+  margin-bottom: 8px;
+}
+
+#race-time-estimator .rte-result-value{
+  font-size: clamp(13px, 5.5vw, 17px);
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  line-height: 1.2;
 }
 
 
-/* removes styling on link */
-.mrt-header-links{
-    list-style: none;
-}
-
-/* removes styling on link */
-.mrt-links{
-    text-decoration: none;
-    color: #E5E7EB;
-    font-size: 18px;
-}
-
-/* Styles the Header logo */
-.mrt-title {
-    color: #F9FAF8;
-    font-size: 24px;
-    font-weight: bolder;
-}
-
-/* arranges the logo */
-.mrt-header{
-    height: 80px;
-    margin: 0px;
-    padding: 0px;
-    display: flex;
-    justify-content: space-between;
+/* Desktop: label + control on one line */
+@media (min-width: 768px){
+  #race-time-estimator .rte-row{
+    grid-template-columns: 140px 1fr;
     align-items: center;
-    padding: 0px 300px;
+  }
+  #race-time-estimator .rte-btn{
+  width: 100%;
+  height: 46px;
+  border: 0;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  background: #111827;
+  color: #ffffff;
+}
+  /* Inputs & select hover */
+  #race-time-estimator .rte-select:hover,
+  #race-time-estimator .rte-time-input:hover {
+    background-color: #f3f4f6; /* light neutral grey */
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+  #race-time-estimator .rte-btn:hover {
+    background-color: #1f2937; /* slightly lighter than base */
+    transform: translateY(-1px);
+  }
+}
 }
 
-/* styles the header links */
-.mrt-header-links{
-    display: flex;
-    gap: 30px;
+/* Smooth transitions (applies everywhere, harmless on mobile) */
+#race-time-estimator .rte-select,
+#race-time-estimator .rte-time-input,
+#race-time-estimator .rte-btn {
+  transition: background-color 0.15s ease, color 0.15s ease,
+              transform 0.12s ease;
 }
+
+/* --- Micro-interactions: button press + smooth transitions --- */
+#race-time-estimator .rte-btn{
+  transition: transform 120ms ease, filter 120ms ease, background-color 150ms ease;
+  transform: translateZ(0);
+}
+
+/* Works on desktop + mobile (tap) */
+#race-time-estimator .rte-btn:active{
+  transform: scale(0.98);
+  filter: brightness(0.95);
+}
+
+/* Optional: subtle hover lift for desktop (keep text white) */
+@media (hover: hover) and (pointer: fine) {
+  #race-time-estimator .rte-btn:hover {
+    filter: brightness(1.05);
+  }
+}
+
+/* --- Output pop animation --- */
+#race-time-estimator .rte-result-value{
+  transition: transform 160ms ease, opacity 160ms ease;
+}
+
+#race-time-estimator .rte-result-value.rte-pop{
+  transform: translateY(-2px) scale(1.02);
+}
+
+/* --- Invalid shake animation (apply to the time group) --- */
+#race-time-estimator .rte-time.rte-shake{
+  animation: rte-shake 300ms ease;
+}
+
+@keyframes rte-shake{
+  0%   { transform: translateX(0); }
+  20%  { transform: translateX(-6px); }
+  40%  { transform: translateX(6px); }
+  60%  { transform: translateX(-4px); }
+  80%  { transform: translateX(4px); }
+  100% { transform: translateX(0); }
+}
+
+/* --- Disabled button appearance during "计算中..." --- */
+#race-time-estimator .rte-btn:disabled{
+  cursor: not-allowed;
+  opacity: 0.85;
+  filter: none;
+  transform: none;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce){
+  #race-time-estimator .rte-btn,
+  #race-time-estimator .rte-result-value{
+    transition: none !important;
+  }
+  #race-time-estimator .rte-time.rte-shake{
+    animation: none !important;
+  }
+}
+
