@@ -9,26 +9,36 @@
 
     <body>
         <div id="race-time-estimator">
-            <div class="mrt-header">
-                <div class="mrt-title" data-i18n="title"> Race Time Estimator</div>
-                <ul class="mrt-header-links">
-                    <li><a class="mrt-links" href="https://running.moximoxi.net/">Store page</a></li>
-                </ul> 
-            </div>
+            <div class="rte-card">
+                <label class="rte-row">
+                <span class="rte-label">距离</span>
+                <select id="distance-inputs" class="rte-select">
+                    <option value="10k">10K</option>
+                    <option value="half">半马</option>
+                </select>
+                </label>
 
-            <div class="mrt-content">
-                <div class="mrt-explanation">
-                    <div class="mrt-explain_title" data-i18n="explain_title"></div>
-                    <div class="mrt-explain" data-i18n="explain"></div>
+                <div class="rte-row">
+                <span class="rte-label">完赛时间</span>
+                <div class="rte-time">
+                    <input class="rte-time-input" id="hours" type="number" min="0" placeholder="HH" inputmode="numeric">
+                    <span class="rte-sep">:</span>
+                    <input class="rte-time-input" id="minutes" type="number" min="0" max="59" placeholder="MM" inputmode="numeric">
+                    <span class="rte-sep">:</span>
+                    <input class="rte-time-input" id="seconds" type="number" min="0" max="59" placeholder="SS" inputmode="numeric">
                 </div>
-                <div class="mrt-calculator"></div>
+                </div>
+
+                <button type="button" class="rte-btn" id="calculate-btn">查看预估</button>
+
+                <div class="rte-result" id="output" aria-live="polite">
+                    <div class="rte-result-title">全马参考区间</div>
+                    <div class="rte-result-value" id="output-value">—</div>
+                </div>
             </div>
-        </div>
+            </div>
 
             
-
-
-
         <script src="app.js"></script>
     </body>
 </html>
