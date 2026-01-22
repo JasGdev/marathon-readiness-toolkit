@@ -293,3 +293,23 @@
     margin: 6px 0 0;
     padding-left: 18px;
 }
+
+/* Center the key pace-difference display */
+.tc-section:first-of-type {
+    text-align: center;
+}
+
+.tc-big-number {
+    font-size: 42px;
+    /* keep it dominant */
+    font-weight: 700;
+    line-height: 1.1;
+    margin: 8px 0 4px;
+}
+
+.tc-unit {
+    font-size: 14px;
+    color: #6b7280;
+    /* muted */
+    letter-spacing: 0.04em;
+}
