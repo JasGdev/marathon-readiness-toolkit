@@ -65,7 +65,7 @@
                 <div class="tc-field tc-field-wide">
                     <label for="tc-weeks">距离比赛还有多少周</label>
                     <input id="tc-weeks" name="weeks" type="number" inputmode="numeric" min="0" max="80"
-                        placeholder="例如 12" />
+                        placeholder="例如 8" />
                     <div class="tc-hint">用于给差距一个“时间背景”（不会给训练计划）</div>
                 </div>
             </div>
@@ -73,6 +73,8 @@
             <button type="button" class="tc-btn" id="tc-btn">
                 现实检查一下
             </button>
+            <div class="tc-error" id="tc-error" aria-live="polite"></div>
+            
 
             <!-- Output -->
             <div class="tc-output" id="tc-output-box" aria-live="polite">

@@ -32,6 +32,8 @@ const rowNeedHighEl = $(`row-need-high`);
 
 const outputBoxEl = $(`output-box`);
 
+const errorEl = $(`error`);
+
 // Headings that must become "X 周..."
 const label1El = $(`label-window-1`);
 const label2El = $(`label-window-2`);
@@ -131,6 +133,55 @@ function formatPctRange(low, high) {
 
     return `${lowPct}–${highPct}%`;
 }
+function clearError() {
+    if (errorEl) {
+        errorEl.textContent = "";
+        errorEl.style.display = "none";
+    }
+    if (currentEl) currentEl.removeAttribute("aria-invalid");
+    if (goalEl) goalEl.removeAttribute("aria-invalid");
+    if (weeksEl) weeksEl.removeAttribute("aria-invalid");
+}
+
+function shakeButton() {
+    if (!btnEl) return;
+    btnEl.animate(
+        [
+            { transform: "translateX(0)" },
+            { transform: "translateX(-6px)" },
+            { transform: "translateX(6px)" },
+            { transform: "translateX(-5px)" },
+            { transform: "translateX(5px)" },
+            { transform: "translateX(-3px)" },
+            { transform: "translateX(3px)" },
+            { transform: "translateX(0)" },
+        ],
+        { duration: 260, iterations: 1 }
+    );
+}
+
+function showError({ msg, invalidEl = null }) {
+    // IMPORTANT: do NOT show the output panel
+    if (outputBoxEl) outputBoxEl.style.display = "none";
+
+    // show inline error message
+    if (errorEl) {
+        errorEl.textContent = msg;
+        errorEl.style.display = "block";
+    }
+
+    // mark field
+    if (invalidEl) {
+        invalidEl.setAttribute("aria-invalid", "true");
+        invalidEl.focus();
+        invalidEl.select?.();
+    }
+
+    // shake submit button
+    shakeButton();
+}
+
+
 
 // ===========================
 // Improvement bands (assumptions)
@@ -269,7 +320,7 @@ function renderWindowLabels(displayWeeks) {
     if (label1El)
         label1El.textContent = `按 ${displayWeeks} 周时间窗口（以 ${BLOCK_WEEKS} 周训练块为参考尺度），可能达到的配速区间`;
     if (label2El) label2El.textContent = `${displayWeeks} 周后，与目标配速仍相差`;
-    if (label3El) label3El.textContent = `如果 ${displayWeeks} 周内仍未达到目标，达到目标大约还需要多久？`;
+    if (label3El) label3El.textContent = `如果在  ${displayWeeks} 周内未达到目标，大约需要多长时间才能达到目标？`;
 }
 
 // ===========================
@@ -357,35 +408,60 @@ function renderUI({ data, weeksNum }) {
 // Main
 // ===========================
 btnEl?.addEventListener("click", () => {
+    clearError();
+
     const level = getRunnerLevel();
 
     const currentRaw = currentEl?.value?.trim() ?? "";
     const goalRaw = goalEl?.value?.trim() ?? "";
-    const weeksNum =
+    const weeksRaw = weeksEl?.value?.trim() ?? "";
 
-        weeksEl && weeksEl.value.trim() !== "" ? toIntOrNull(weeksEl.value.trim()) : null;
+    // ---- Required field checks (shake + message) ----
+    if (!currentRaw) {
+        showError({ msg: "请先填写【当前可持续配速】（例如 5:10 或 5）。", invalidEl: currentEl });
+        return;
+    }
+
+    if (!goalRaw) {
+        showError({ msg: "请先填写【目标配速】（例如 5:00）。", invalidEl: goalEl });
+        return;
+    }
+
+    if (!weeksRaw) {
+        showError({ msg: "请先填写【距离比赛还有多少周】（例如 8）。", invalidEl: weeksEl });
+        return;
+    }
+
+    const weeksNum = toIntOrNull(weeksRaw);
+    if (!Number.isFinite(weeksNum) || weeksNum <= 0) {
+        showError({ msg: "【剩余周数】需要是大于 0 的整数（例如 8）。", invalidEl: weeksEl });
+        return;
+    }
 
     const currentSec = parsePaceToSeconds(currentRaw);
     const goalSec = parsePaceToSeconds(goalRaw);
 
-    if (currentSec === null || goalSec === null) {
-        // show output with basic hint
-        if (outputBoxEl) outputBoxEl.style.display = "block";
-        renderWindowLabels(
-            Number.isFinite(weeksNum) && weeksNum > 0 ? weeksNum : BLOCK_WEEKS
-        );
-
-        if (gapEl) gapEl.textContent = "—";
-        if (spreadEl) spreadEl.textContent = "请按 m:ss 输入（例如 5:10），或输入 5 表示 5:00。";
-        renderAssumptions(level);
+    if (currentSec === null) {
+        showError({ msg: "【当前配速】请按 m:ss 输入（例如 5:10），或输入 5 表示 5:00。", invalidEl: currentEl });
         return;
     }
 
-    const displayWeeks =
-        Number.isFinite(weeksNum) && weeksNum > 0 ? weeksNum : BLOCK_WEEKS;
+    if (goalSec === null) {
+        showError({ msg: "【目标配速】请按 m:ss 输入（例如 5:00），或输入 5 表示 5:00。", invalidEl: goalEl });
+        return;
+    }
 
-    // Update the "X 周..." headings immediately (so user sees it right away)
-    renderWindowLabels(displayWeeks);
+    // ---- Goal must be faster than current ----
+    if (goalSec >= currentSec) {
+        showError({
+            msg: "目标配速需要比当前配速更快（数字更小）。例如：当前 5:10，目标 5:00。",
+            invalidEl: goalEl,
+        });
+        return;
+    }
+
+    // Update headings immediately
+    renderWindowLabels(weeksNum);
 
     const data = computeAll({
         currentSec,
@@ -404,3 +480,4 @@ btnEl?.addEventListener("click", () => {
         setLoading(false);
     }, 450);
 });
+
