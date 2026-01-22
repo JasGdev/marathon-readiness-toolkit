@@ -155,3 +155,21 @@
     width: 100%;
     box-sizing: border-box;
 }
+
+/* Navigation styling */
+
+.tool-nav {
+    max-width: 900px;
+    margin: 0 auto 16px;
+    padding: 12px 20px 0;
+}
+
+.tool-back {
+    font-size: 0.9rem;
+    color: #2563eb;
+    text-decoration: none;
+}
+
+.tool-back:hover {
+    text-decoration: underline;
+}

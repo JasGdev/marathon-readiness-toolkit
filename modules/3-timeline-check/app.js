@@ -269,7 +269,7 @@ function renderWindowLabels(displayWeeks) {
     if (label1El)
         label1El.textContent = `按 ${displayWeeks} 周时间窗口（以 ${BLOCK_WEEKS} 周训练块为参考尺度），可能达到的配速区间`;
     if (label2El) label2El.textContent = `${displayWeeks} 周后，与目标配速仍相差`;
-    if (label3El) label3El.textContent = `如果 ${displayWeeks} 周仍未达到目标（粗略尺度）`;
+    if (label3El) label3El.textContent = `如果 ${displayWeeks} 周内仍未达到目标，达到目标大约还需要多久？`;
 }
 
 // ===========================
