@@ -102,3 +102,12 @@ Because the outputs evolve meaningfully as race day approaches, the toolkit crea
 
 From a platform perspective, the goal is to increase retention during long training cycles, reduce anxiety-driven churn, and position the site as a trusted orientation resource rather than a prescriptive training authority.
 
+---
+
+## Development notes
+
+This project was built using vanilla HTML, CSS, and JavaScript, with AI-assisted tooling (including ChatGPT) used during development.
+
+AI was used as a coding and reasoning aid — for example, to explore implementation approaches, draft functions, and iterate on logic — while all architectural decisions, feature definitions, assumptions, and UX framing were designed and validated manually.
+
+All outputs and behaviors were reviewed, tested, and refined to align with the project’s design principles.
