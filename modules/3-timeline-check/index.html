@@ -9,87 +9,87 @@
 </head>
 
 <body>
-    <div id="pace-gap-check">
-        <form class="pgc-card" id="pgc-form">
-            <div class="pgc-header">
-                <h1 class="pgc-title">配速差距现实检查</h1>
-                <p class="pgc-subtitle">
+    <div id="timeline-check">
+        <form class="tc-card" id="tc-form">
+            <div class="tc-header">
+                <h1 class="tc-title">配速差距现实检查</h1>
+                <p class="tc-subtitle">
                     量化「当前能力」与「目标配速」之间的差距，并给出更贴近实际的解释（不提供训练计划）。
                 </p>
             </div>
 
-            <div class="pgc-grid">
+            <div class="tc-grid">
                 <!-- Runner level -->
-                <div class="pgc-field pgc-field-wide">
+                <div class="tc-field tc-field-wide">
                     <label>你的跑者阶段</label>
 
-                    <div class="pgc-seg" role="radiogroup" aria-label="你的跑者阶段">
-                        <label class="pgc-seg-item">
+                    <div class="tc-seg" role="radiogroup" aria-label="你的跑者阶段">
+                        <label class="tc-seg-item">
                             <input type="radio" name="level" value="beginner" checked />
                             <span>入门</span>
                             <small>刚开始系统训练 / 第一次备赛</small>
                         </label>
 
-                        <label class="pgc-seg-item">
+                        <label class="tc-seg-item">
                             <input type="radio" name="level" value="intermediate" />
                             <span>进阶</span>
                             <small>有比赛经验 / 训练较稳定</small>
                         </label>
 
-                        <label class="pgc-seg-item">
+                        <label class="tc-seg-item">
                             <input type="radio" name="level" value="advanced" />
                             <span>高阶</span>
                             <small>长期训练 / 提升更偏细节</small>
                         </label>
                     </div>
 
-                    <div class="pgc-hint">
+                    <div class="tc-hint">
                         这个选项只用于解释差距的“常见程度”，不会生成训练计划或保证提升幅度。
                     </div>
                 </div>
 
                 <!-- Current pace -->
-                <div class="pgc-field">
-                    <label for="pgc-current">当前可持续配速（/km）</label>
-                    <input id="pgc-current" name="current" type="text" inputmode="numeric" placeholder="例如 5:10"
+                <div class="tc-field">
+                    <label for="tc-current">当前可持续配速（/km）</label>
+                    <input id="tc-current" name="current" type="text" inputmode="numeric" placeholder="例如 5:10"
                         autocomplete="off" />
-                    <div class="pgc-hint">格式：m:ss（例：4:45、5:10）</div>
+                    <div class="tc-hint">格式：m:ss（例：4:45、5:10）</div>
                 </div>
 
                 <!-- Goal pace -->
-                <div class="pgc-field">
-                    <label for="pgc-goal">目标配速（/km）</label>
-                    <input id="pgc-goal" name="goal" type="text" inputmode="numeric" placeholder="例如 5:00"
+                <div class="tc-field">
+                    <label for="tc-goal">目标配速（/km）</label>
+                    <input id="tc-goal" name="goal" type="text" inputmode="numeric" placeholder="例如 5:00"
                         autocomplete="off" />
-                    <div class="pgc-hint">目标越快，配速数字越小</div>
+                    <div class="tc-hint">目标越快，配速数字越小</div>
                 </div>
 
                 <!-- Weeks remaining -->
-                <div class="pgc-field pgc-field-wide">
-                    <label for="pgc-weeks">距离比赛还有多少周</label>
-                    <input id="pgc-weeks" name="weeks" type="number" inputmode="numeric" min="0" max="80"
+                <div class="tc-field tc-field-wide">
+                    <label for="tc-weeks">距离比赛还有多少周</label>
+                    <input id="tc-weeks" name="weeks" type="number" inputmode="numeric" min="0" max="80"
                         placeholder="例如 12" />
-                    <div class="pgc-hint">用于给差距一个“时间背景”（不会给训练计划）</div>
+                    <div class="tc-hint">用于给差距一个“时间背景”（不会给训练计划）</div>
                 </div>
             </div>
 
-            <button type="button" class="pgc-btn" id="pgc-btn">
+            <button type="button" class="tc-btn" id="tc-btn">
                 现实检查一下
             </button>
 
             <!-- Output (JS later will hide/show) -->
-            <div class="pgc-output" id="pgc-output-box" aria-live="polite">
-                <div class="pgc-output-top">
+            <div class="tc-output" id="tc-output-box" aria-live="polite">
+                <div class="tc-output-top">
                     <div>
-                        <div class="pgc-output-label">差距（秒 / km）</div>
-                        <div class="pgc-output-value" id="pgc-gap">—</div>
+                        <div class="tc-output-label">差距（秒 / km）</div>
+                        <div class="tc-output-value" id="tc-gap">—</div>
                     </div>
 
-                    <div class="pgc-badge" id="pgc-badge">—</div>
+                    <div class="tc-badge" id="tc-badge">—</div>
                 </div>
 
-                <div class="pgc-message" id="pgc-message"></div>
-                <div class="pgc-meta" id="pgc-meta"></div>
+                <div class="tc-message" id="tc-message"></div>
+                <div class="tc-meta" id="tc-meta"></div>
             </div>
         </form>
     </div>
