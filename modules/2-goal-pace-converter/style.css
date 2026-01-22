@@ -1,0 +1,157 @@
+#goal-pace-converter {
+    max-width: 520px;
+    margin: 40px auto;
+    padding: 0 16px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+#goal-pace-converter .gpc-card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 22px;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
+}
+
+#goal-pace-converter .gpc-title {
+    margin: 0 0 6px;
+    font-size: 22px;
+    font-weight: 800;
+    color: #111827;
+}
+
+#goal-pace-converter .gpc-subtitle {
+    margin: 0 0 18px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #6b7280;
+}
+
+#goal-pace-converter .gpc-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+#goal-pace-converter label {
+    font-size: 14px;
+    font-weight: 700;
+    color: #374151;
+}
+
+#goal-pace-converter select {
+    height: 46px;
+    padding: 0 12px;
+    font-size: 16px;
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+    background: #fff;
+    cursor: pointer;
+}
+
+#goal-pace-converter select:hover {
+    background: #f9fafb;
+}
+
+#goal-pace-converter select:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+#goal-pace-converter .gpc-time-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+#goal-pace-converter .gpc-time-box {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    
+}
+
+#goal-pace-converter .gpc-time-label {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+#goal-pace-converter input {
+    height: 46px;
+    padding: 0 12px;
+    font-size: 16px;
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+}
+
+#goal-pace-converter input:hover {
+    background: #f9fafb;
+}
+
+#goal-pace-converter input:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+#goal-pace-converter .gpc-btn {
+    width: 100%;
+    height: 48px;
+    border: 0;
+    border-radius: 12px;
+    background: #111827;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform 120ms ease, opacity 120ms ease;
+}
+
+#goal-pace-converter .gpc-btn:hover {
+    opacity: 0.92;
+}
+
+#goal-pace-converter .gpc-btn:active {
+    transform: translateY(1px) scale(0.99);
+}
+
+#goal-pace-converter .gpc-output {
+    margin-top: 16px;
+    padding: 14px;
+    border-radius: 12px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+}
+
+#goal-pace-converter .gpc-output-label {
+    font-size: 12px;
+    color: #6b7280;
+    margin-bottom: 4px;
+}
+
+#goal-pace-converter .gpc-output-value {
+    font-size: 28px;
+    font-weight: 900;
+    color: #111827;
+}
+
+#goal-pace-converter .gpc-output-note {
+    margin-top: 6px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #6b7280;
+}
+
+/* Desktop enhancement */
+@media (min-width: 720px) {
+    #goal-pace-converter .gpc-card {
+        padding: 26px;
+    }
+}
+
+/* input all same size */
+.gpc-time-box input {
+    width: 100%;
+    box-sizing: border-box;
+}
