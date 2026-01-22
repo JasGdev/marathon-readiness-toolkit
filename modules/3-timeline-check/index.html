@@ -11,13 +11,6 @@
 <body>
     <div id="timeline-check">
         <form class="tc-card" id="tc-form">
-            <div class="tc-header">
-                <h1 class="tc-title">配速差距现实检查</h1>
-                <p class="tc-subtitle">
-                    量化「当前能力」与「目标配速」之间的差距，并给出更贴近实际的解释（不提供训练计划）。
-                </p>
-            </div>
-
             <div class="tc-grid">
                 <!-- Runner level -->
                 <div class="tc-field tc-field-wide">
@@ -53,7 +46,7 @@
                     <label for="tc-current">当前可持续配速（/km）</label>
                     <input id="tc-current" name="current" type="text" inputmode="numeric" placeholder="例如 5:10"
                         autocomplete="off" />
-                    <div class="tc-hint">格式：m:ss（例：4:45、5:10）</div>
+                    <div class="tc-hint">格式：m:ss（例：4:45、5:10）。也支持输入整数分钟（例：5 表示 5:00）</div>
                 </div>
 
                 <!-- Goal pace -->
@@ -77,19 +70,69 @@
                 现实检查一下
             </button>
 
-            <!-- Output (JS later will hide/show) -->
+            <!-- Output -->
             <div class="tc-output" id="tc-output-box" aria-live="polite">
-                <div class="tc-output-top">
-                    <div>
-                        <div class="tc-output-label">差距（秒 / km）</div>
-                        <div class="tc-output-value" id="tc-gap">—</div>
-                    </div>
-
-                    <div class="tc-badge" id="tc-badge">—</div>
+                <!-- 1. Current gap -->
+                <div class="tc-section">
+                    <div class="tc-label">当前与目标的配速差距</div>
+                    <div class="tc-big-number" id="tc-gap">—</div>
+                    <div class="tc-unit">秒 / km</div>
                 </div>
 
-                <div class="tc-message" id="tc-message"></div>
-                <div class="tc-meta" id="tc-meta"></div>
+                <!-- 2. improvement range -->
+                <div class="tc-section">
+                    <div class="tc-label" id="tc-label-window-1">按时间窗口，可能达到的配速区间</div>
+
+                    <div class="tc-row">
+                        <span class="tc-row-label" id="tc-low-label">低估（提升 —%）</span>
+                        <span class="tc-row-value" id="tc-pace-low">— /km</span>
+                    </div>
+
+                    <div class="tc-row">
+                        <span class="tc-row-label" id="tc-high-label">高估（提升 —%）</span>
+                        <span class="tc-row-value" id="tc-pace-high">— /km</span>
+                    </div>
+
+                    <div class="tc-muted" id="tc-spread">低 / 高估差值：— 秒 / km</div>
+                </div>
+
+                <!-- 3. Remaining gap vs goal -->
+                <div class="tc-section">
+                    <div class="tc-label" id="tc-label-window-2">— 周后，与目标配速仍相差</div>
+
+                    <div class="tc-row">
+                        <span class="tc-row-label">低估情况</span>
+                        <span class="tc-row-value" id="tc-remain-low">— 秒 / km</span>
+                    </div>
+
+                    <div class="tc-row">
+                        <span class="tc-row-label">高估情况</span>
+                        <span class="tc-row-value" id="tc-remain-high">— 秒 / km</span>
+                    </div>
+                </div>
+
+                <!-- 4. Time needed -->
+                <div class="tc-section tc-highlight">
+                    <div class="tc-label" id="tc-label-window-3">如果 — 周仍未达到目标（粗略尺度）</div>
+
+                    <div class="tc-row">
+                        <span class="tc-row-label" id="tc-need-low-label">按低提升率（—%）</span>
+                        <span class="tc-row-value" id="tc-need-low">—</span>
+                    </div>
+
+                    <div class="tc-row">
+                        <span class="tc-row-label" id="tc-need-high-label">按高提升率（—%）</span>
+                        <span class="tc-row-value" id="tc-need-high">—</span>
+                    </div>
+                </div>
+
+                <!-- 5. Assumptions -->
+                <div class="tc-section tc-assumptions">
+                    <div class="tc-label">假设说明（用于理解尺度）</div>
+                    <ul id="tc-assumptions">
+                        <li>—</li>
+                    </ul>
+                </div>
             </div>
         </form>
     </div>
