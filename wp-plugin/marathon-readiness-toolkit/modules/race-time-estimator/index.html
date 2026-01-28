@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Race Time Estimator</title>
+        <link rel="stylesheet" href="style.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+    </head>
+
+    <body>
+        <!-- <nav class="tool-nav">
+            <a href="../../index.html" class="tool-back">← Back to Navigation Menu</a>
+        </nav> -->
+        
+        <div id="race-time-estimator">
+            <div class="rte-card">
+                <label class="rte-row">
+                <span class="rte-label">距离</span>
+                <select id="distance-inputs" class="rte-select">
+                    <option value="10k">10K</option>
+                    <option value="half">半马</option>
+                </select>
+                </label>
+
+                <div class="rte-row">
+                <span class="rte-label">完赛时间</span>
+                <div class="rte-time">
+                    <input class="rte-time-input" id="hours" type="number" min="0" placeholder="HH" inputmode="numeric">
+                    <span class="rte-sep">:</span>
+                    <input class="rte-time-input" id="minutes" type="number" min="0" max="59" placeholder="MM" inputmode="numeric">
+                    <span class="rte-sep">:</span>
+                    <input class="rte-time-input" id="seconds" type="number" min="0" max="59" placeholder="SS" inputmode="numeric">
+                </div>
+                </div>
+
+                <button type="button" class="rte-btn" id="calculate-btn">查看预估</button>
+
+                <div class="rte-result" id="output" aria-live="polite">
+                    <div class="rte-result-title">全马参考区间</div>
+                    <div class="rte-result-value" id="output-value">—</div>
+                </div>
+            </div>
+            </div>
+
+            
+        <script src="app.js"></script>
+    </body>
+</html>

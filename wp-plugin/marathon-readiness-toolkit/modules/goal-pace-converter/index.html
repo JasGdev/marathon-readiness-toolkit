@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="UTF-8">
+        <title>Goal Pace Converter</title>
+        <link rel="stylesheet" href="style.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+    </head>
+
+    <body>
+        <!-- <nav class="tool-nav">
+            <a href="../../index.html" class="tool-back">← Back to Navigation Menu</a>
+        </nav> -->
+
+        
+        <div id="goal-pace-converter">
+            <form class="gpc-card" id="gpc-form">
+                
+                <!-- Distance -->
+                <div class="gpc-field">
+                    <label for="gpc-distance">选择比赛距离</label>
+                    <select id="gpc-distance" name="distance">
+                        <option value="" disabled selected>请选择距离</option>
+                        <option value="5k">5 公里（5K）</option>
+                        <option value="10k">10 公里（10K）</option>
+                        <option value="half">半程马拉松（21.0975K）</option>
+                        <option value="full">全程马拉松（42.195K）</option>
+                    </select>
+                </div>
+    
+                <!-- Goal time -->
+                <div class="gpc-field">
+                    <label>目标完赛时间</label>
+    
+                    <div class="gpc-time-row" role="group" aria-label="目标完赛时间">
+                        <div class="gpc-time-box">
+                            <span class="gpc-time-label">小时</span>
+                            <input id="gpc-hours" type="number" inputmode="numeric" min="0" placeholder="0" />
+                        </div>
+    
+                        <div class="gpc-time-box">
+                            <span class="gpc-time-label">分钟</span>
+                            <input id="gpc-minutes" type="number" inputmode="numeric" min="0" max="59" placeholder="00" />
+                        </div>
+    
+                        <div class="gpc-time-box">
+                            <span class="gpc-time-label">秒</span>
+                            <input id="gpc-seconds" type="number" inputmode="numeric" min="0" max="59" placeholder="00" />
+                        </div>
+                    </div>
+                </div>
+    
+                <!-- Action -->
+                <button type="button" class="gpc-btn" id="gpc-calc-btn">计算配速</button>
+    
+                <!-- Output -->
+                <div class="gpc-output" aria-live="polite">
+                    <div class="gpc-output-label">每公里目标配速</div>
+                    <div class="gpc-output-value" id="gpc-output">—</div>
+                    <div class="gpc-output-note" id="gpc-note"></div>
+                </div>
+            </form>
+        </div>
+    
+        <script src="app.js"></script>
+    </body>
+
+</html>
