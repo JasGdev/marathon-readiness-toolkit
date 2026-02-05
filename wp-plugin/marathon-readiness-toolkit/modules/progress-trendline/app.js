@@ -16,6 +16,10 @@ const LS_KEY = "mrt_pt_v1";
 const root = document.querySelector("#pt-root");
 const $ = (id) => root?.querySelector(`#pt-${id}`);
 
+// Extra cards (outside pt-checkin)
+const chartCardEl = $("chart-card"); // <div id="pt-chart-card">
+const dataCardEl = $("data-card");   // <div id="pt-data-card">
+
 // Setup panel
 const setupBox = $("setup");
 const raceDateEl = $("race-date");
@@ -203,6 +207,10 @@ function calcPaceFromRun(distKm, hh, mm, ss) {
 function setMode(isStarted) {
   if (setupBox) setupBox.style.display = isStarted ? "none" : "block";
   if (checkinBox) checkinBox.style.display = isStarted ? "block" : "none";
+
+  // NEW: hide/show chart + data cards too
+  if (chartCardEl) chartCardEl.style.display = isStarted ? "block" : "none";
+  if (dataCardEl) dataCardEl.style.display = isStarted ? "block" : "none";
 }
 
 // ===========================
@@ -972,6 +980,9 @@ addBtn?.addEventListener("click", () => {
 function rerenderAll() {
   applyPrimaryActionLayout();
   syncSettingsUI();
+
+  if (!state.config) return; // setup-only view: nothing else to render
+
   renderList();
   renderChart();
 }
