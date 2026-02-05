@@ -4,13 +4,13 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Progress Trendline</title>
+    <title>进度趋势线</title>
     <link rel="stylesheet" href="./style.css" />
 </head>
 
 <body>
     <nav class="tool-nav">
-        <a href="../../index.html" class="tool-back">← Back to Navigation Menu</a>
+        <a href="../../index.html" class="tool-back">← 返回导航菜单</a>
     </nav>
 
     <!-- modules/4-progress-trendline/index.html -->
@@ -20,38 +20,36 @@
              Setup (Start Trendline)
         ========================== -->
         <div id="pt-setup" class="pt-card">
-            <h1 class="pt-title">Progress Trendline</h1>
+            <h1 class="pt-title">进度趋势线</h1>
             <p class="pt-sub">
-                Set your race date once. Then add check-ins to see how your projected race-day range evolves.
+                先设置一次比赛日期。之后添加打卡记录，观察比赛日预测区间如何随时间变化。
             </p>
 
             <div id="pt-error" class="pt-error" style="display:none;"></div>
 
             <div class="pt-grid">
                 <div class="pt-field">
-                    <label class="pt-label" for="pt-race-date">Race date (YYYY-MM-DD) <span
-                            class="pt-req">*</span></label>
+                    <label class="pt-label" for="pt-race-date">比赛日期（YYYY-MM-DD） <span class="pt-req">*</span></label>
                     <input class="pt-input" id="pt-race-date" type="date" placeholder="2026-03-01" />
                 </div>
 
                 <div class="pt-field">
-                    <label class="pt-label" for="pt-goal-pace">Goal pace (optional, m:ss /km)</label>
+                    <label class="pt-label" for="pt-goal-pace">目标配速（可选，m:ss /km）</label>
                     <input class="pt-input" id="pt-goal-pace" inputmode="numeric" placeholder="5:00" />
                 </div>
             </div>
 
             <div id="pt-level-wrap" class="pt-levels">
-                <div class="pt-level-title">Runner level</div>
-                <label class="pt-radio"><input type="radio" name="level" value="beginner" checked /> Beginner</label>
-                <label class="pt-radio"><input type="radio" name="level" value="intermediate" /> Intermediate</label>
-                <label class="pt-radio"><input type="radio" name="level" value="advanced" /> Advanced</label>
+                <div class="pt-level-title">跑者水平</div>
+                <label class="pt-radio"><input type="radio" name="level" value="beginner" checked /> 新手</label>
+                <label class="pt-radio"><input type="radio" name="level" value="intermediate" /> 进阶</label>
+                <label class="pt-radio"><input type="radio" name="level" value="advanced" /> 高阶</label>
             </div>
 
-            <button id="pt-start-btn" class="pt-btn" type="button">Start Trendline</button>
+            <button id="pt-start-btn" class="pt-btn" type="button">开始趋势线</button>
 
             <div class="pt-note">
-                Uses the same 8-week block improvement model as Module 3 to generate conservative / typical / optimistic
-                projection bands to race day.
+                使用与 Module 3 相同的「每 8 周训练周期」提升模型，生成保守 / 典型 / 乐观的比赛日预测区间。
             </div>
         </div>
 
@@ -62,36 +60,36 @@
 
             <details class="pt-details">
                 <summary class="pt-summary">
-                    <span>Race settings</span>
-                    <span class="pt-summary-hint">Optional</span>
+                    <span>比赛设置</span>
+                    <span class="pt-summary-hint">可选</span>
                 </summary>
 
                 <div class="pt-details-body">
                     <div class="pt-grid">
                         <div class="pt-field">
-                            <label class="pt-label" for="pt-edit-race-date">Race date</label>
+                            <label class="pt-label" for="pt-edit-race-date">比赛日期</label>
                             <input class="pt-input" id="pt-edit-race-date" type="date" />
                         </div>
 
                         <div class="pt-field">
-                            <label class="pt-label" for="pt-edit-goal-pace">Goal pace (optional, m:ss /km)</label>
+                            <label class="pt-label" for="pt-edit-goal-pace">目标配速（可选，m:ss /km）</label>
                             <input class="pt-input" id="pt-edit-goal-pace" inputmode="numeric" placeholder="5:00" />
                         </div>
                     </div>
 
                     <div id="pt-edit-level-wrap" class="pt-levels">
-                        <div class="pt-level-title">Runner level</div>
+                        <div class="pt-level-title">跑者水平</div>
                         <label class="pt-radio"><input type="radio" name="edit-level" value="beginner" />
-                            Beginner</label>
+                            新手</label>
                         <label class="pt-radio"><input type="radio" name="edit-level" value="intermediate" />
-                            Intermediate</label>
+                            进阶</label>
                         <label class="pt-radio"><input type="radio" name="edit-level" value="advanced" />
-                            Advanced</label>
+                            高阶</label>
                     </div>
 
                     <div class="pt-actions pt-actions-center">
                         <button id="pt-save-settings-btn" class="pt-btn pt-btn-wide" type="button">
-                            Save settings
+                            保存设置
                         </button>
                     </div>
                 </div>
@@ -101,41 +99,37 @@
 
             <div class="pt-header-row">
                 <div>
-                    <h2 class="pt-h2">Check-ins</h2>
+                    <h2 class="pt-h2">打卡记录</h2>
                     <div class="pt-mini">
-                        Add a check-in pace (or calculate from a recent run). Projections update automatically against
-                        your
-                        race date.
+                        添加一次打卡配速（或用最近一次跑步计算得到）。系统会根据你的比赛日期自动更新预测。
                     </div>
                 </div>
             </div>
 
             <div class="pt-grid">
                 <div class="pt-field">
-                    <label class="pt-label" for="pt-checkin-date">Check-in date (YYYY-MM-DD) <span
-                            class="pt-req">*</span></label>
+                    <label class="pt-label" for="pt-checkin-date">打卡日期（YYYY-MM-DD） <span class="pt-req">*</span></label>
                     <input class="pt-input" id="pt-checkin-date" type="date" placeholder="2026-02-05" />
                 </div>
 
                 <div class="pt-field">
-                    <label class="pt-label" for="pt-pace">Current sustainable pace (m:ss /km) <span
-                            class="pt-req">*</span></label>
+                    <label class="pt-label" for="pt-pace">当前可持续配速（m:ss /km） <span class="pt-req">*</span></label>
                     <input class="pt-input" id="pt-pace" inputmode="numeric" placeholder="5:20" />
                 </div>
             </div>
 
             <div class="pt-divider"></div>
 
-            <div class="pt-h3">Or calculate pace from a recent run</div>
+            <div class="pt-h3">或者：用最近一次跑步计算配速</div>
 
             <div class="pt-grid">
                 <div class="pt-field">
-                    <label class="pt-label" for="pt-dist-km">Distance (km)</label>
+                    <label class="pt-label" for="pt-dist-km">距离（km）</label>
                     <input class="pt-input" id="pt-dist-km" inputmode="decimal" placeholder="10" />
                 </div>
 
                 <div class="pt-field">
-                    <label class="pt-label">Time (h:m:s)</label>
+                    <label class="pt-label">用时（h:m:s）</label>
                     <div class="pt-time">
                         <input class="pt-input pt-time-input" id="pt-h" inputmode="numeric" placeholder="0" />
                         <span class="pt-time-sep">:</span>
@@ -147,48 +141,42 @@
             </div>
 
             <div class="pt-actions">
-                <button id="pt-calc-pace-btn" class="pt-btn pt-btn-ghost" type="button">Calculate pace</button>
-                <button id="pt-add-btn" class="pt-btn" type="button">Add check-in</button>
+                <button id="pt-calc-pace-btn" class="pt-btn pt-btn-ghost" type="button">计算配速</button>
+                <button id="pt-add-btn" class="pt-btn" type="button">添加打卡</button>
             </div>
 
             <div class="pt-divider"></div>
 
             <details class="pt-explain">
-                <summary class="pt-explain-summary">How to read this graph (optional)</summary>
+                <summary class="pt-explain-summary">如何阅读图表（可选）</summary>
                 <div class="pt-explain-body">
                     <p>
-                        Each black dot represents a check-in — your current sustainable pace on that date.
-                        The thin black line simply connects these check-ins so you can see the overall direction
-                        of change over time.
+                        每个黑点代表一次打卡——你在该日期的「当前可持续配速」。
+                        细黑线只是把这些打卡点连起来，方便你看到整体变化方向。
                     </p>
 
                     <p>
-                        After your <strong>most recent</strong> check-in, the tool projects two possible paths
-                        forward to race day:
-                        <strong>orange</strong> shows a conservative (low-end) improvement path,
-                        and <strong>green</strong> shows a more optimistic (high-end) path.
+                        在你<strong>最近一次</strong>打卡之后，工具会从该点开始，给出两条到比赛日的预测路径：
+                        <strong>橙色</strong>代表更保守（低端）的提升路径，
+                        <strong>绿色</strong>代表更乐观（高端）的提升路径。
                     </p>
 
                     <p>
-                        <strong>Important:</strong> these projections are not straight lines.
-                        They use a <strong>diminishing-returns model</strong>, based on your selected runner level
-                        and an <strong>8-week training block</strong> framework:
-                        <br />• Beginner: <strong>~4–6%</strong> per 8 weeks
-                        <br />• Intermediate: <strong>~3–4%</strong> per 8 weeks
-                        <br />• Advanced: <strong>~2%</strong> per 8 weeks
+                        <strong>重要：</strong>这些预测不是直线。
+                        它使用<strong>边际收益递减模型</strong>，基于你选择的跑者水平，并以<strong>8 周训练周期</strong>为单位：
+                        <br />• 新手：每 8 周约 <strong>4–6%</strong>
+                        <br />• 进阶：每 8 周约 <strong>3–4%</strong>
+                        <br />• 高阶：每 8 周约 <strong>2%</strong>
                         <br />
-                        Early improvements tend to be larger, while later gains gradually taper —
-                        reflecting how real training adaptation works.
+                        早期进步往往更明显，后期提升会逐渐放缓——这更符合真实训练适应规律。
                     </p>
 
                     <p>
-                        How to use this:
-                        If the orange and green paths stay far above your goal line, the goal may be a stretch
-                        at the moment.
-                        If they move closer to — or cross — the goal line as you add check-ins,
-                        your training is trending more in line with that goal.
-                        The most meaningful signal comes from <strong>repeated check-ins over time</strong>,
-                        not from any single data point.
+                        如何使用：
+                        如果橙线和绿线长期都明显高于你的目标线，说明目标可能偏激进；
+                        如果随着打卡增加，两条线逐渐靠近——甚至穿过目标线，
+                        说明你的训练趋势更接近该目标。
+                        最有意义的信号来自<strong>持续、重复的打卡</strong>，而不是某一次单点数据。
                     </p>
                 </div>
             </details>
@@ -211,31 +199,28 @@
         <div id="pt-data-card" class="pt-card" style="display:none;">
             <details class="pt-details">
                 <summary class="pt-summary">
-                    <span>Data (History & Guest Reset)</span>
-                    <span class="pt-summary-hint">Optional</span>
+                    <span>数据（历史记录 & 访客重置）</span>
+                    <span class="pt-summary-hint">可选</span>
                 </summary>
 
                 <div class="pt-details-body">
-                    <h3 class="pt-h3">History</h3>
+                    <h3 class="pt-h3">历史记录</h3>
                     <div id="pt-list" class="pt-list"></div>
 
                     <div class="pt-footer-actions">
                         <button id="pt-clear-btn" class="pt-btn pt-btn-danger pt-btn-wide" type="button">
-                            Clear all (guest data)
+                            清空全部（访客数据）
                         </button>
                     </div>
 
                     <div class="pt-note">
-                        Guest mode stores data in your browser. In WordPress account mode, check-ins will be tied to
-                        your user
-                        account.
+                        访客模式会将数据保存在你的浏览器中。未来接入 WordPress 账号后，打卡将绑定到你的用户账号。
                     </div>
                 </div>
             </details>
 
             <div class="pt-note">
-                Guest mode stores data in your browser. In WordPress account mode, check-ins will be tied to your user
-                account.
+                访客模式会将数据保存在你的浏览器中。未来接入 WordPress 账号后，打卡将绑定到你的用户账号。
             </div>
         </div>
 

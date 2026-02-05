@@ -18,7 +18,7 @@ const $ = (id) => root?.querySelector(`#pt-${id}`);
 
 // Extra cards (outside pt-checkin)
 const chartCardEl = $("chart-card"); // <div id="pt-chart-card">
-const dataCardEl = $("data-card");   // <div id="pt-data-card">
+const dataCardEl = $("data-card"); // <div id="pt-data-card">
 
 // Setup panel
 const setupBox = $("setup");
@@ -64,7 +64,9 @@ function applyPrimaryActionLayout() {
 
   // ✅ Only target the action row that contains the two main buttons
   const actionsEl =
-    calcPaceBtn?.closest(".pt-actions") || addBtn?.closest(".pt-actions") || null;
+    calcPaceBtn?.closest(".pt-actions") ||
+    addBtn?.closest(".pt-actions") ||
+    null;
   if (!actionsEl || !calcPaceBtn || !addBtn) return;
 
   actionsEl.style.display = "flex";
@@ -137,7 +139,7 @@ function weeksBetweenMs(aMs, bMs) {
 }
 
 function parsePaceToSeconds(paceStr) {
-  // ✅ be forgiving: allow "5.20" as "5:20"
+  // ✅ 容错：允许 "5.20" 作为 "5:20"
   const s = String(paceStr).trim().replace(".", ":");
   if (!s) return null;
 
@@ -158,7 +160,7 @@ function parsePaceToSeconds(paceStr) {
 }
 
 function formatPace(secPerKm) {
-  const sInt = Math.round(secPerKm); // only round when formatting text
+  const sInt = Math.round(secPerKm); // 仅在格式化文本时四舍五入
   const m = Math.floor(sInt / 60);
   const s = String(sInt % 60).padStart(2, "0");
   return `${m}:${s}`;
@@ -170,7 +172,9 @@ function getLevel() {
 }
 
 function getEditLevel() {
-  const checked = editLevelWrapEl?.querySelector('input[name="edit-level"]:checked');
+  const checked = editLevelWrapEl?.querySelector(
+    'input[name="edit-level"]:checked'
+  );
   return checked ? checked.value : "beginner";
 }
 
@@ -208,7 +212,7 @@ function setMode(isStarted) {
   if (setupBox) setupBox.style.display = isStarted ? "none" : "block";
   if (checkinBox) checkinBox.style.display = isStarted ? "block" : "none";
 
-  // NEW: hide/show chart + data cards too
+  // NEW: 同时控制图表卡片 & 数据卡片（不在 pt-checkin 内）
   if (chartCardEl) chartCardEl.style.display = isStarted ? "block" : "none";
   if (dataCardEl) dataCardEl.style.display = isStarted ? "block" : "none";
 }
@@ -282,7 +286,7 @@ function renderList() {
   const items = [...state.checkins].sort((a, b) => (a.date > b.date ? 1 : -1));
 
   if (!items.length) {
-    listEl.innerHTML = `<div class="pt-empty">No check-ins yet.</div>`;
+    listEl.innerHTML = `<div class="pt-empty">暂无打卡记录。</div>`;
     return;
   }
 
@@ -296,11 +300,10 @@ function renderList() {
           })
         : null;
 
-      // ✅ still show the same "per-8w" reference band text
       const projText = proj
-        ? `→ Race-day range: ${formatPace(proj.bandLow)}–${formatPace(
+        ? `→ 预计比赛日区间：${formatPace(proj.bandLow)}–${formatPace(
             proj.bandHigh
-          )} /km (${proj.pctLow}–${proj.pctHigh}% per 8w)`
+          )} /km（每 8 周 ${proj.pctLow}–${proj.pctHigh}%）`
         : "";
 
       return `
@@ -308,7 +311,7 @@ function renderList() {
         <div class="pt-date">${c.date}</div>
         <div class="pt-pace">${formatPace(c.paceSecPerKm)} /km</div>
         <div class="pt-proj">${projText}</div>
-        <button class="pt-del" type="button">Delete</button>
+        <button class="pt-del" type="button">删除</button>
       </div>
     `;
     })
@@ -358,8 +361,7 @@ function addWeeksMs(ms, weeks) {
 }
 
 /**
- * Build a projection polyline from last check-in to race day.
- * We sample every `stepWeeks` (default 1 week) so diminishing returns shows up as a curve.
+ * 从最后一次打卡到比赛日生成投影折线（每 stepWeeks 采样一次，让曲线呈现“递减收益”）
  */
 function buildProjectionSeries({
   startMs,
@@ -393,7 +395,7 @@ function buildProjectionSeries({
     points.push({ ms, pace });
   }
 
-  // Ensure we end exactly at race day
+  // 保证终点精确落在比赛日
   const endPace = paceAfterWeeks({
     currentSecPerKm: startPaceSec,
     rate,
@@ -449,11 +451,7 @@ function renderChart() {
   if (!state.config) {
     ctx.fillStyle = "#6B7280";
     ctx.font = "14px system-ui, -apple-system, sans-serif";
-    ctx.fillText(
-      "Set race date and click Start Trendline.",
-      frame + 8,
-      frame + 24
-    );
+    ctx.fillText("请先设置比赛日期并点击“开始趋势线”。", frame + 8, frame + 24);
     return;
   }
 
@@ -461,28 +459,28 @@ function renderChart() {
   if (!raceMs) {
     ctx.fillStyle = "#6B7280";
     ctx.font = "14px system-ui, -apple-system, sans-serif";
-    ctx.fillText("Race date invalid.", frame + 8, frame + 24);
+    ctx.fillText("比赛日期无效。", frame + 8, frame + 24);
     return;
   }
 
   const level = state.config.level || "beginner";
   const maxImp = getMaxTotalImprovementByLevel(level);
 
-  // --- Goal pace (support old/localStorage string values too) ---
-let goalSec = null;
-const rawGoal = state.config.goalPaceSec;
+  // --- 目标配速（兼容旧 localStorage 可能存成 string 的情况）---
+  let goalSec = null;
+  const rawGoal = state.config.goalPaceSec;
 
-if (Number.isFinite(rawGoal)) {
-  goalSec = rawGoal;
-} else if (typeof rawGoal === "string" && rawGoal.trim()) {
-  goalSec = parsePaceToSeconds(rawGoal.trim());
-}
+  if (Number.isFinite(rawGoal)) {
+    goalSec = rawGoal;
+  } else if (typeof rawGoal === "string" && rawGoal.trim()) {
+    goalSec = parsePaceToSeconds(rawGoal.trim());
+  }
 
-// Optional: normalize stored value once if it was a string
-if (goalSec !== null && !Number.isFinite(rawGoal)) {
-  state.config.goalPaceSec = goalSec;
-  saveState();
-}
+  // 可选：如果之前是字符串，顺便规范化一次
+  if (goalSec !== null && !Number.isFinite(rawGoal)) {
+    state.config.goalPaceSec = goalSec;
+    saveState();
+  }
 
   const pts = [...state.checkins]
     .map((c) => ({ ms: parseDateToMs(c.date), pace: c.paceSecPerKm }))
@@ -545,7 +543,7 @@ if (goalSec !== null && !Number.isFinite(rawGoal)) {
   const yScale = (sec) =>
     bottom - ((sec - minY) / (maxY - minY)) * (bottom - top);
 
-  // Y grid + labels
+  // Y 网格 + 标签
   const step = niceStepSeconds(maxY - minY);
   const tickStart = Math.ceil(minY / step) * step;
   const tickEnd = Math.floor(maxY / step) * step;
@@ -570,7 +568,7 @@ if (goalSec !== null && !Number.isFinite(rawGoal)) {
     ctx.fillText(formatPace(v), left - 6, y);
   }
 
-  // Month ticks
+  // 月刻度
   const monthTicks = getMonthTicks(safeMinX, maxX);
 
   monthTicks.forEach((d) => {
@@ -609,7 +607,7 @@ if (goalSec !== null && !Number.isFinite(rawGoal)) {
     }
   });
 
-  // Race marker line only (no label)
+  // 比赛日竖线（无文字）
   {
     const xRace = xScale(raceMs);
     ctx.strokeStyle = "#9CA3AF";
@@ -621,7 +619,7 @@ if (goalSec !== null && !Number.isFinite(rawGoal)) {
     ctx.globalAlpha = 1;
   }
 
-  // Goal line
+  // 目标线
   if (goalSec !== null) {
     const yG = yScale(goalSec);
 
@@ -638,14 +636,14 @@ if (goalSec !== null && !Number.isFinite(rawGoal)) {
     ctx.textAlign = "right";
     ctx.textBaseline = "middle";
     ctx.fillText(
-      `Goal: ${formatPace(goalSec)}/km`,
+      `目标：${formatPace(goalSec)}/km`,
       right - 4,
       Math.max(top + 12, yG - 14)
     );
     ctx.restore();
   }
 
-  // Legend
+  // 图例
   const colorConservative = "#F59E0B";
   const colorOptimistic = "#10B981";
   const sampleLen = 24;
@@ -655,8 +653,8 @@ if (goalSec !== null && !Number.isFinite(rawGoal)) {
   ctx.fillStyle = "#374151";
   ctx.lineWidth = 3;
 
-  const leftText = "Low-end estimate (orange)";
-  const rightText = "High-end estimate (green)";
+  const leftText = "保守预估（橙色）";
+  const rightText = "乐观预估（绿色）";
 
   if (!isMobile) {
     const legendY = bottom + monthLabelZone + legendZone / 2;
@@ -697,7 +695,6 @@ if (goalSec !== null && !Number.isFinite(rawGoal)) {
     const y1 = bottom + monthLabelZone + 16;
     const y2 = y1 + 22;
 
-    // Use a consistent font before measuring
     ctx.save();
     ctx.font = "12px system-ui";
     ctx.textBaseline = "middle";
@@ -705,7 +702,7 @@ if (goalSec !== null && !Number.isFinite(rawGoal)) {
     ctx.fillStyle = "#374151";
     ctx.lineWidth = 3;
 
-    const gap = 14; // space between line and text
+    const gap = 14;
 
     const leftWText = ctx.measureText(leftText).width;
     const rightWText = ctx.measureText(rightText).width;
@@ -716,22 +713,18 @@ if (goalSec !== null && !Number.isFinite(rawGoal)) {
     const startX1 = Math.max((cssW - row1W) / 2, frame + 8);
     const startX2 = Math.max((cssW - row2W) / 2, frame + 8);
 
-    // Row 1 (conservative)
     ctx.strokeStyle = colorConservative;
     ctx.beginPath();
     ctx.moveTo(startX1, y1);
     ctx.lineTo(startX1 + sampleLen, y1);
     ctx.stroke();
-
     ctx.fillText(leftText, startX1 + sampleLen + gap, y1);
 
-    // Row 2 (optimistic)
     ctx.strokeStyle = colorOptimistic;
     ctx.beginPath();
     ctx.moveTo(startX2, y2);
     ctx.lineTo(startX2 + sampleLen, y2);
     ctx.stroke();
-
     ctx.fillText(rightText, startX2 + sampleLen + gap, y2);
 
     ctx.restore();
@@ -741,7 +734,7 @@ if (goalSec !== null && !Number.isFinite(rawGoal)) {
 
   if (!pts.length) return;
 
-  // History line
+  // 历史线
   ctx.strokeStyle = "#111827";
   ctx.globalAlpha = 0.35;
   ctx.beginPath();
@@ -754,7 +747,7 @@ if (goalSec !== null && !Number.isFinite(rawGoal)) {
   ctx.stroke();
   ctx.globalAlpha = 1;
 
-  // Projection from latest (CURVED via weekly samples)
+  // 从最近一次打卡开始投影（曲线）
   const last = pts[pts.length - 1];
 
   const conSeries = buildProjectionSeries({
@@ -764,7 +757,7 @@ if (goalSec !== null && !Number.isFinite(rawGoal)) {
     rate: rates.conservative,
     decay,
     maxTotalImprovement: maxImp,
-    stepWeeks: 1, // change to 2 if you want fewer segments
+    stepWeeks: 1,
   });
 
   const optSeries = buildProjectionSeries({
@@ -787,7 +780,7 @@ if (goalSec !== null && !Number.isFinite(rawGoal)) {
     drawPolyline(ctx, optSeries, xScale, yScale);
   }
 
-  // Points
+  // 点
   const lastIdx = pts.length - 1;
   pts.forEach((p, i) => {
     const x = xScale(p.ms);
@@ -818,9 +811,7 @@ if (goalSec !== null && !Number.isFinite(rawGoal)) {
 // Clear all guest data
 // ===========================
 clearBtn?.addEventListener("click", () => {
-  const ok = confirm(
-    "This will permanently delete ALL guest data (race settings + check-ins). Continue?"
-  );
+  const ok = confirm("这将永久删除所有访客数据（比赛设置 + 打卡记录）。确定继续？");
   if (!ok) return;
 
   localStorage.removeItem(LS_KEY);
@@ -850,14 +841,14 @@ saveSettingsBtn?.addEventListener("click", () => {
 
   const raceDate = editRaceDateEl?.value?.trim() ?? "";
   if (!raceDate || !parseDateToMs(raceDate)) {
-    showError("Please enter a valid race date.");
+    showError("请输入有效的比赛日期。");
     return;
   }
 
   const goalRaw = editGoalPaceEl?.value?.trim() ?? "";
   const goalSec = goalRaw ? parsePaceToSeconds(goalRaw) : null;
   if (goalRaw && goalSec === null) {
-    showError("Goal pace must be m:ss (e.g. 5:00) or a whole minute (e.g. 5).");
+    showError("目标配速格式应为 m:ss（例如 5:00）或整数分钟（例如 5）。");
     return;
   }
 
@@ -877,14 +868,14 @@ startBtn?.addEventListener("click", () => {
 
   const raceDate = raceDateEl?.value?.trim() ?? "";
   if (!raceDate || !parseDateToMs(raceDate)) {
-    showError("Please enter a valid race date (YYYY-MM-DD) to start the trendline.");
+    showError("请先输入有效的比赛日期（YYYY-MM-DD），再开始趋势线。");
     return;
   }
 
   const goalRaw = goalPaceEl?.value?.trim() ?? "";
   const goalPaceSec = goalRaw ? parsePaceToSeconds(goalRaw) : null;
   if (goalRaw && goalPaceSec === null) {
-    showError("Goal pace must be m:ss (e.g. 5:00) or a whole minute (e.g. 5).");
+    showError("目标配速格式应为 m:ss（例如 5:00）或整数分钟（例如 5）。");
     return;
   }
 
@@ -912,7 +903,7 @@ calcPaceBtn?.addEventListener("click", () => {
 
   const paceSec = calcPaceFromRun(distKm, hh, mm, ss);
   if (paceSec === null) {
-    showError("Please enter a valid distance (km) and completion time to calculate pace.");
+    showError("请输入有效的距离（km）和完成时间，以计算配速。");
     return;
   }
 
@@ -926,37 +917,35 @@ addBtn?.addEventListener("click", () => {
   clearError();
 
   if (!state.config) {
-    showError("Please start the trendline first by setting your race date.");
+    showError("请先设置比赛日期并开始趋势线。");
     return;
   }
 
   const date = checkinDateEl?.value?.trim() ?? "";
   const checkinMs = parseDateToMs(date);
   if (!date || !checkinMs) {
-    showError("Please enter a valid check-in date (YYYY-MM-DD).");
+    showError("请输入有效的打卡日期（YYYY-MM-DD）。");
     return;
   }
 
-  // ✅ prevent check-in after race date
+  // ✅ 不允许打卡日期晚于比赛日
   const raceMs = parseDateToMs(state.config.raceDate);
   if (raceMs && checkinMs > raceMs) {
-    showError("Check-in date must be on or before your race date.");
+    showError("打卡日期必须早于或等于比赛日期。");
     return;
   }
 
-  // ✅ prevent duplicate date check-ins
+  // ✅ 不允许同一天重复打卡
   const exists = state.checkins.some((c) => c.date === date);
   if (exists) {
-    showError("You already have a check-in for this date. Delete it first or choose a new date.");
+    showError("该日期已有打卡记录。请先删除该记录或选择新的日期。");
     return;
   }
 
   const paceRaw = paceInputEl?.value?.trim() ?? "";
   const paceSecPerKm = parsePaceToSeconds(paceRaw);
   if (paceSecPerKm === null) {
-    showError(
-      "Please enter your current pace (m:ss /km), or use the run calculator to fill it."
-    );
+    showError("请输入当前可持续配速（m:ss /km），或使用跑步计算器自动填入。");
     return;
   }
 
@@ -967,7 +956,7 @@ addBtn?.addEventListener("click", () => {
     source: "pace",
   });
 
-  // ✅ small UX: clear pace field after adding
+  // ✅ 体验：添加后清空配速输入
   if (paceInputEl) paceInputEl.value = "";
 
   saveState();
@@ -981,7 +970,7 @@ function rerenderAll() {
   applyPrimaryActionLayout();
   syncSettingsUI();
 
-  if (!state.config) return; // setup-only view: nothing else to render
+  if (!state.config) return; // 仅显示设置页，不渲染列表/图表
 
   renderList();
   renderChart();
