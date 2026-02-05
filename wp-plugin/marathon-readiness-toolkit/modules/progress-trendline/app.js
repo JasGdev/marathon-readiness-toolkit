@@ -5,6 +5,7 @@ import {
   paceAfterWeeks,
   scenarioRates,
   getBlockDecayByLevel,
+  getMaxTotalImprovementByLevel,
 } from "./growthModel.js";
 
 const LS_KEY = "mrt_pt_v1";
@@ -233,12 +234,14 @@ function projectToRace({ paceSecPerKm, checkinDate, config }) {
 
   const rates = scenarioRates(config.level);
   const decay = getBlockDecayByLevel(config.level);
+  const maxImp = getMaxTotalImprovementByLevel(config.level);
 
   const conservative = paceAfterWeeks({
     currentSecPerKm: paceSecPerKm,
     rate: rates.conservative,
     weeks: weeksRemain,
     decay,
+    maxTotalImprovement: maxImp,
   });
 
   const optimistic = paceAfterWeeks({
@@ -246,6 +249,7 @@ function projectToRace({ paceSecPerKm, checkinDate, config }) {
     rate: rates.optimistic,
     weeks: weeksRemain,
     decay,
+    maxTotalImprovement: maxImp,
   });
 
   const bandLow = Math.max(conservative, optimistic);
@@ -355,6 +359,7 @@ function buildProjectionSeries({
   raceMs,
   rate,
   decay,
+  maxTotalImprovement,
   stepWeeks = 1,
 }) {
   const totalWeeks = weeksBetweenMs(startMs, raceMs);
@@ -371,6 +376,7 @@ function buildProjectionSeries({
       rate,
       weeks: w,
       decay,
+      maxTotalImprovement,
     });
 
     if (!Number.isFinite(pace)) continue;
@@ -385,6 +391,7 @@ function buildProjectionSeries({
     rate,
     weeks: totalWeeks,
     decay,
+    maxTotalImprovement,
   });
 
   if (Number.isFinite(endPace)) {
@@ -405,7 +412,6 @@ function drawPolyline(ctx, points, xScale, yScale) {
   });
   ctx.stroke();
 }
-
 
 // ===========================
 // Render chart
@@ -451,9 +457,24 @@ function renderChart() {
     return;
   }
 
-  const goalSec = Number.isFinite(state.config.goalPaceSec)
-    ? state.config.goalPaceSec
-    : null;
+  const level = state.config.level || "beginner";
+  const maxImp = getMaxTotalImprovementByLevel(level);
+
+  // --- Goal pace (support old/localStorage string values too) ---
+let goalSec = null;
+const rawGoal = state.config.goalPaceSec;
+
+if (Number.isFinite(rawGoal)) {
+  goalSec = rawGoal;
+} else if (typeof rawGoal === "string" && rawGoal.trim()) {
+  goalSec = parsePaceToSeconds(rawGoal.trim());
+}
+
+// Optional: normalize stored value once if it was a string
+if (goalSec !== null && !Number.isFinite(rawGoal)) {
+  state.config.goalPaceSec = goalSec;
+  saveState();
+}
 
   const pts = [...state.checkins]
     .map((c) => ({ ms: parseDateToMs(c.date), pace: c.paceSecPerKm }))
@@ -465,8 +486,8 @@ function renderChart() {
   const maxX = raceMs;
   const safeMinX = Math.min(minXRaw, raceMs - 7 * 24 * 3600 * 1000);
 
-  const rates = scenarioRates(state.config.level);
-  const decay = getBlockDecayByLevel(state.config.level);
+  const rates = scenarioRates(level);
+  const decay = getBlockDecayByLevel(level);
 
   const yVals = [];
   if (goalSec !== null) yVals.push(goalSec);
@@ -481,12 +502,14 @@ function renderChart() {
         rate: rates.conservative,
         weeks: w,
         decay,
+        maxTotalImprovement: maxImp,
       }),
       paceAfterWeeks({
         currentSecPerKm: last.pace,
         rate: rates.optimistic,
         weeks: w,
         decay,
+        maxTotalImprovement: maxImp,
       })
     );
   }
@@ -666,24 +689,44 @@ function renderChart() {
     const y1 = bottom + monthLabelZone + 16;
     const y2 = y1 + 22;
 
-    const w1 = sampleLen + 8 + ctx.measureText(leftText).width;
-    const w2 = sampleLen + 8 + ctx.measureText(rightText).width;
-    const x1 = (cssW - w1) / 2;
-    const x2 = (cssW - w2) / 2;
+    // Use a consistent font before measuring
+    ctx.save();
+    ctx.font = "12px system-ui";
+    ctx.textBaseline = "middle";
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#374151";
+    ctx.lineWidth = 3;
 
+    const gap = 14; // space between line and text
+
+    const leftWText = ctx.measureText(leftText).width;
+    const rightWText = ctx.measureText(rightText).width;
+
+    const row1W = sampleLen + gap + leftWText;
+    const row2W = sampleLen + gap + rightWText;
+
+    const startX1 = Math.max((cssW - row1W) / 2, frame + 8);
+    const startX2 = Math.max((cssW - row2W) / 2, frame + 8);
+
+    // Row 1 (conservative)
     ctx.strokeStyle = colorConservative;
     ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x1 + sampleLen, y1);
+    ctx.moveTo(startX1, y1);
+    ctx.lineTo(startX1 + sampleLen, y1);
     ctx.stroke();
-    ctx.fillText(leftText, x1 + sampleLen + 8, y1);
 
+    ctx.fillText(leftText, startX1 + sampleLen + gap, y1);
+
+    // Row 2 (optimistic)
     ctx.strokeStyle = colorOptimistic;
     ctx.beginPath();
-    ctx.moveTo(x2, y2);
-    ctx.lineTo(x2 + sampleLen, y2);
+    ctx.moveTo(startX2, y2);
+    ctx.lineTo(startX2 + sampleLen, y2);
     ctx.stroke();
-    ctx.fillText(rightText, x2 + sampleLen + 8, y2);
+
+    ctx.fillText(rightText, startX2 + sampleLen + gap, y2);
+
+    ctx.restore();
   }
 
   ctx.lineWidth = 2;
@@ -704,35 +747,37 @@ function renderChart() {
   ctx.globalAlpha = 1;
 
   // Projection from latest (CURVED via weekly samples)
-const last = pts[pts.length - 1];
+  const last = pts[pts.length - 1];
 
-const conSeries = buildProjectionSeries({
-  startMs: last.ms,
-  startPaceSec: last.pace,
-  raceMs,
-  rate: rates.conservative,
-  decay,
-  stepWeeks: 1, // change to 2 if you want fewer segments
-});
+  const conSeries = buildProjectionSeries({
+    startMs: last.ms,
+    startPaceSec: last.pace,
+    raceMs,
+    rate: rates.conservative,
+    decay,
+    maxTotalImprovement: maxImp,
+    stepWeeks: 1, // change to 2 if you want fewer segments
+  });
 
-const optSeries = buildProjectionSeries({
-  startMs: last.ms,
-  startPaceSec: last.pace,
-  raceMs,
-  rate: rates.optimistic,
-  decay,
-  stepWeeks: 1,
-});
+  const optSeries = buildProjectionSeries({
+    startMs: last.ms,
+    startPaceSec: last.pace,
+    raceMs,
+    rate: rates.optimistic,
+    decay,
+    maxTotalImprovement: maxImp,
+    stepWeeks: 1,
+  });
 
-if (conSeries.length) {
-  ctx.strokeStyle = colorConservative;
-  drawPolyline(ctx, conSeries, xScale, yScale);
-}
+  if (conSeries.length) {
+    ctx.strokeStyle = colorConservative;
+    drawPolyline(ctx, conSeries, xScale, yScale);
+  }
 
-if (optSeries.length) {
-  ctx.strokeStyle = colorOptimistic;
-  drawPolyline(ctx, optSeries, xScale, yScale);
-}
+  if (optSeries.length) {
+    ctx.strokeStyle = colorOptimistic;
+    drawPolyline(ctx, optSeries, xScale, yScale);
+  }
 
   // Points
   const lastIdx = pts.length - 1;

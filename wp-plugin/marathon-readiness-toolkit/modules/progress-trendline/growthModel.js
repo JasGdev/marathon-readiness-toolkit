@@ -1,58 +1,38 @@
 // modules/4-progress-trendline/growthModel.js
 
-/**
- * Growth model (Module 4)
- * -----------------------
- * We model improvement in 8-week training blocks, but with diminishing returns:
- *
- * - Each runner level has an improvement "band" per 8 weeks (low/high).
- * - Over multiple blocks, the improvement rate decays slightly each block
- *   (early gains are bigger; later gains are smaller).
- * - This avoids hard "caps" that can look artificial on long timelines,
- *   while still keeping projections conservative and realistic.
- *
- * IMPORTANT:
- * - This is still NON-compounding in the "pace" sense (we don't multiply pace each week),
- *   but the total improvement is accumulated as a *decaying* sum of block gains.
- * - A safety floorFactor prevents impossible outcomes (e.g., 30%+ pace drops).
- */
-
 export const BLOCK_WEEKS = 8;
 
 export function getImprovementBandByLevel(level) {
-  // per 8 weeks (as you listed)
   if (level === "advanced") return { low: 0.02, high: 0.02 };
   if (level === "intermediate") return { low: 0.03, high: 0.04 };
   return { low: 0.04, high: 0.06 }; // beginner
 }
 
-/**
- * How fast gains "taper" from one 8-week block to the next.
- * Example: decay=0.95 means block 2 gets 95% of block 1's improvement, etc.
- */
 export function getBlockDecayByLevel(level) {
   if (level === "advanced") return 0.97;
   if (level === "intermediate") return 0.95;
   return 0.94; // beginner
 }
 
+// ✅ add this back (you had it earlier)
+export function getMaxTotalImprovementByLevel(level) {
+  if (level === "advanced") return 0.06;      // ~6% max total
+  if (level === "intermediate") return 0.10;  // ~10%
+  return 0.14;                                // ~14% beginner
+}
+
 /**
- * Diminishing-returns model (decaying blocks)
- * ------------------------------------------
- * blocks = weeks / 8
- * totalImprovement ≈ rate * (1 + decay + decay^2 + ... ) across blocks
- * pace_after = current * (1 - totalImprovement)
- *
- * Supports fractional blocks:
- * - Full blocks add full decayed gains
- * - Remaining fraction adds a proportional part of the next decayed block
+ * Diminishing-returns + smooth cap
+ * - rawImprovement: decayed block sum
+ * - cappedImprovement: asymptotically approaches maxTotalImprovement
+ *   so it never flatlines and never collapses both lines to the same clamp
  */
 export function paceAfterWeeks({
   currentSecPerKm,
-  rate, // per 8 weeks, e.g. 0.04
+  rate,
   weeks,
-  decay = 0.95, // per-block taper
-  floorFactor = 0.70, // safety: never allow factor to drop below this
+  decay = 0.95,
+  maxTotalImprovement = 0.14, // ✅ new
 }) {
   if (!(currentSecPerKm > 0)) return null;
   if (!(rate > 0 && rate < 1)) return null;
@@ -62,24 +42,25 @@ export function paceAfterWeeks({
   const fullBlocks = Math.floor(blocks);
   const frac = blocks - fullBlocks;
 
-  // Sum decayed gains per block: rate * decay^i
-  let totalImprovement = 0;
+  // raw decayed sum: Σ rate * decay^i
+  let raw = 0;
 
   for (let i = 0; i < fullBlocks; i++) {
-    totalImprovement += rate * Math.pow(decay, i);
+    raw += rate * Math.pow(decay, i);
   }
 
-  // Partial next block (if any)
   if (frac > 0) {
-    totalImprovement += frac * rate * Math.pow(decay, fullBlocks);
+    raw += frac * rate * Math.pow(decay, fullBlocks);
   }
 
-  const factor = 1 - totalImprovement;
+  // ✅ smooth cap (never hard-plateaus)
+  // Maps raw -> [0, maxTotalImprovement)
+  const maxImp = Math.max(0, Math.min(0.5, maxTotalImprovement)); // sanity
+  const capped = maxImp <= 0 ? 0 : maxImp * (1 - Math.exp(-raw / maxImp));
 
-  // Safety: never allow negative / too tiny factor
-  const safeFactor = Math.max(factor, floorFactor);
+  const factor = 1 - capped;
 
-  return currentSecPerKm * safeFactor;
+  return currentSecPerKm * factor;
 }
 
 export function scenarioRates(level) {
