@@ -1,7 +1,7 @@
 // ===========================
-// Timeline Check – UPDATED formula to match Module 4 growthModel.js
-// - uses decaying 8-week blocks (diminishing returns)
-// - replaces old exponential (1-rate)^(weeks/8) model
+// Timeline Check – UPDATED formula to match Module 4 growthModel.js (smooth cap)
+// - decaying 8-week blocks (diminishing returns)
+// - smooth asymptotic cap (no hard flatline)
 // ===========================
 
 (() => {
@@ -107,8 +107,9 @@
   }
 
   function formatPaceFromSeconds(secPerKm) {
-    const m = Math.floor(secPerKm / 60);
-    const s = String(secPerKm % 60).padStart(2, "0");
+    const sInt = Math.round(secPerKm);
+    const m = Math.floor(sInt / 60);
+    const s = String(sInt % 60).padStart(2, "0");
     return `${m}:${s}`;
   }
 
@@ -131,8 +132,6 @@
   function formatPctRange(low, high) {
     const lowPct = Math.round(low * 100);
     const highPct = Math.round(high * 100);
-
-    // single-point case (advanced runner)
     if (lowPct === highPct) return `≈ ${lowPct}%`;
     return `${lowPct}–${highPct}%`;
   }
@@ -165,29 +164,21 @@
   }
 
   function showError({ msg, invalidEl = null }) {
-    // IMPORTANT: do NOT show the output panel
     if (outputBoxEl) outputBoxEl.style.display = "none";
-
-    // show inline error message
     if (errorEl) {
       errorEl.textContent = msg;
       errorEl.style.display = "block";
     }
-
-    // mark field
     if (invalidEl) {
       invalidEl.setAttribute("aria-invalid", "true");
       invalidEl.focus();
       invalidEl.select?.();
     }
-
-    // shake submit button
     shakeButton();
   }
 
   // ===========================
-  // Improvement bands (assumptions)
-  // (same as Module 4 growthModel.js)
+  // Improvement bands (same as Module 4)
   // ===========================
   function getImprovementBandByLevel(level) {
     if (level === "advanced") return { low: 0.02, high: 0.02 };
@@ -195,77 +186,80 @@
     return { low: 0.04, high: 0.06 };
   }
 
-  // ===========================
-  // NEW: block decay per level (Module 4)
-  // ===========================
   function getBlockDecayByLevel(level) {
     if (level === "advanced") return 0.97;
     if (level === "intermediate") return 0.95;
-    return 0.94; // beginner
+    return 0.94;
+  }
+
+  // ✅ NEW: smooth cap maximums (same as Module 4)
+  function getMaxTotalImprovementByLevel(level) {
+    if (level === "advanced") return 0.06; // ~6%
+    if (level === "intermediate") return 0.10; // ~10%
+    return 0.14; // ~14%
   }
 
   // ===========================
-  // NEW: Diminishing-returns model (decaying blocks)
-  // pace_after = current * (1 - totalImprovement)
-  // totalImprovement = sum(rate * decay^i) across blocks (+ fractional)
+  // NEW: Diminishing-returns + smooth cap (matches growthModel.js)
+  // raw: Σ rate * decay^i across blocks (+ fractional)
+  // capped: maxImp * (1 - exp(-raw/maxImp))  -> approaches maxImp, never hard-flatlines
+  // pace_after = current * (1 - capped)
   // ===========================
   function paceAfterWeeks({
     currentSecPerKm,
     rate,
     weeks,
     decay = 0.95,
-    floorFactor = 0.70,
+    maxTotalImprovement = 0.14,
   }) {
     if (!(currentSecPerKm > 0)) return null;
     if (!(rate > 0 && rate < 1)) return null;
-    if (!(weeks > 0)) return Math.round(currentSecPerKm);
+    if (!(weeks > 0)) return currentSecPerKm;
 
     const blocks = weeks / BLOCK_WEEKS;
     const fullBlocks = Math.floor(blocks);
     const frac = blocks - fullBlocks;
 
-    let totalImprovement = 0;
-
+    let raw = 0;
     for (let i = 0; i < fullBlocks; i++) {
-      totalImprovement += rate * Math.pow(decay, i);
+      raw += rate * Math.pow(decay, i);
     }
-
     if (frac > 0) {
-      totalImprovement += frac * rate * Math.pow(decay, fullBlocks);
+      raw += frac * rate * Math.pow(decay, fullBlocks);
     }
 
-    const factor = 1 - totalImprovement;
-    const safeFactor = Math.max(factor, floorFactor);
+    const maxImp = Math.max(0, Math.min(0.5, maxTotalImprovement));
+    const capped = maxImp <= 0 ? 0 : maxImp * (1 - Math.exp(-raw / maxImp));
 
-    return Math.round(currentSecPerKm * safeFactor);
+    const factor = 1 - capped;
+    return currentSecPerKm * factor;
   }
 
   // ===========================
-  // NEW: weeks needed to reach goal (numeric solve using same model)
-  // - binary search weeks in [0..maxWeeks]
+  // NEW: weeks needed to reach goal (binary search using SAME model)
   // ===========================
   function weeksNeededToReachGoal({
     currentSecPerKm,
     goalSecPerKm,
     rate,
     decay,
-    maxWeeks = 208,
+    maxTotalImprovement,
+    maxWeeks = 208, // ~4 years guardrail
   }) {
     if (currentSecPerKm <= goalSecPerKm) return 0;
     if (!(rate > 0 && rate < 1)) return null;
 
-    // If even at maxWeeks we don't reach goal, return null (not reachable in this model window)
     const paceAtMax = paceAfterWeeks({
       currentSecPerKm,
       rate,
       weeks: maxWeeks,
       decay,
+      maxTotalImprovement,
     });
 
     if (!Number.isFinite(paceAtMax)) return null;
     if (paceAtMax > goalSecPerKm) return null;
 
-    // Binary search smallest weeks where pace <= goal
     let lo = 0;
     let hi = maxWeeks;
 
@@ -276,6 +270,7 @@
         rate,
         weeks: mid,
         decay,
+        maxTotalImprovement,
       });
 
       if (!Number.isFinite(p)) return null;
@@ -293,15 +288,16 @@
   function computeAll({ currentSec, goalSec, weeksNum, level }) {
     const band = getImprovementBandByLevel(level);
     const decay = getBlockDecayByLevel(level);
+    const maxImp = getMaxTotalImprovementByLevel(level);
 
-    const w =
-      Number.isFinite(weeksNum) && weeksNum > 0 ? weeksNum : BLOCK_WEEKS;
+    const w = Number.isFinite(weeksNum) && weeksNum > 0 ? weeksNum : BLOCK_WEEKS;
 
     const paceLow = paceAfterWeeks({
       currentSecPerKm: currentSec,
       rate: band.low,
       weeks: w,
       decay,
+      maxTotalImprovement: maxImp,
     });
 
     const paceHigh = paceAfterWeeks({
@@ -309,20 +305,22 @@
       rate: band.high,
       weeks: w,
       decay,
+      maxTotalImprovement: maxImp,
     });
 
-    const spread = Math.abs(paceLow - paceHigh);
+    const spread = Math.round(Math.abs(paceLow - paceHigh));
 
-    const gapNow = currentSec - goalSec; // + means goal faster than current
+    const gapNow = currentSec - goalSec;
 
-    const remainLow = paceLow - goalSec; // + means still slower than goal
-    const remainHigh = paceHigh - goalSec;
+    const remainLow = Math.round(paceLow - goalSec);
+    const remainHigh = Math.round(paceHigh - goalSec);
 
     const needWeeksLow = weeksNeededToReachGoal({
       currentSecPerKm: currentSec,
       goalSecPerKm: goalSec,
       rate: band.low,
       decay,
+      maxTotalImprovement: maxImp,
     });
 
     const needWeeksHigh = weeksNeededToReachGoal({
@@ -330,6 +328,7 @@
       goalSecPerKm: goalSec,
       rate: band.high,
       decay,
+      maxTotalImprovement: maxImp,
     });
 
     return {
@@ -337,6 +336,7 @@
       pctLow: Math.round(band.low * 100),
       pctHigh: Math.round(band.high * 100),
       decay,
+      maxImp,
       paceLow,
       paceHigh,
       spread,
@@ -351,7 +351,7 @@
 
   function weeksLine(needWeeks, weeksAvailable) {
     if (needWeeks === 0) return `已在目标范围内`;
-    if (needWeeks === null) return `可能需要很久（或并非线性可达）`;
+    if (needWeeks === null) return `可能需要更久（或在该模型下难以达到）`;
 
     const blocks = Math.ceil(needWeeks / BLOCK_WEEKS);
     let s = `约 ${needWeeks} 周（${blocks} 个训练块）`;
@@ -366,10 +366,14 @@
     const band = getImprovementBandByLevel(level);
     const pctRange = formatPctRange(band.low, band.high);
     const decay = getBlockDecayByLevel(level);
+    const maxImp = getMaxTotalImprovementByLevel(level);
 
     const items = [
       `${levelLabel(level)}跑者：参考提升幅度 ${pctRange} / 训练块（${BLOCK_WEEKS} 周）`,
       `递减假设：每个训练块的提升幅度会逐步变小（decay≈${decay}），越到后期越难继续大幅提升`,
+      `总提升约束：使用“平滑上限”，总提升会逐渐逼近 ≈${Math.round(
+        maxImp * 100
+      )}%（不会突然硬性封顶）`,
       `前提：训练较结构化且一致性良好；个体差异很大（不做承诺）`,
     ];
 
@@ -385,7 +389,7 @@
       label1El.textContent = `按 ${displayWeeks} 周时间窗口（以 ${BLOCK_WEEKS} 周训练块为参考尺度），可能达到的配速区间`;
     if (label2El) label2El.textContent = `${displayWeeks} 周后，与目标配速仍相差`;
     if (label3El)
-      label3El.textContent = `如果在  ${displayWeeks} 周内未达到目标，大约需要多长时间才能达到目标？`;
+      label3El.textContent = `如果在 ${displayWeeks} 周内未达到目标，大约需要多长时间才能达到目标？`;
   }
 
   // ===========================
@@ -410,8 +414,7 @@
     // 2) improvement range
     if (isSingle) {
       if (lowLabelEl) lowLabelEl.textContent = `预计（提升 ${data.pctLow}%）`;
-      if (paceLowEl)
-        paceLowEl.textContent = `${formatPaceFromSeconds(data.paceLow)} /km`;
+      if (paceLowEl) paceLowEl.textContent = `${formatPaceFromSeconds(data.paceLow)} /km`;
 
       if (rowPaceHighEl) rowPaceHighEl.style.display = "none";
       if (spreadEl) spreadEl.style.display = "none";
@@ -422,25 +425,20 @@
       if (lowLabelEl) lowLabelEl.textContent = `低估（提升 ${data.pctLow}%）`;
       if (highLabelEl) highLabelEl.textContent = `高估（提升 ${data.pctHigh}%）`;
 
-      if (paceLowEl)
-        paceLowEl.textContent = `${formatPaceFromSeconds(data.paceLow)} /km`;
-      if (paceHighEl)
-        paceHighEl.textContent = `${formatPaceFromSeconds(data.paceHigh)} /km`;
+      if (paceLowEl) paceLowEl.textContent = `${formatPaceFromSeconds(data.paceLow)} /km`;
+      if (paceHighEl) paceHighEl.textContent = `${formatPaceFromSeconds(data.paceHigh)} /km`;
 
       spreadEl.textContent = `低 / 高估差值：${data.spread} 秒 / km`;
     }
 
     // 3) remaining vs goal
     if (isSingle) {
-      if (remainLowEl)
-        remainLowEl.textContent = formatSignedSecPerKm(data.remainLow);
+      if (remainLowEl) remainLowEl.textContent = formatSignedSecPerKm(data.remainLow);
       if (rowRemainHighEl) rowRemainHighEl.style.display = "none";
     } else {
       if (rowRemainHighEl) rowRemainHighEl.style.display = "";
-      if (remainLowEl)
-        remainLowEl.textContent = formatSignedSecPerKm(data.remainLow);
-      if (remainHighEl)
-        remainHighEl.textContent = formatSignedSecPerKm(data.remainHigh);
+      if (remainLowEl) remainLowEl.textContent = formatSignedSecPerKm(data.remainLow);
+      if (remainHighEl) remainHighEl.textContent = formatSignedSecPerKm(data.remainHigh);
     }
 
     // 4) time needed
@@ -452,10 +450,8 @@
     } else {
       if (rowNeedHighEl) rowNeedHighEl.style.display = "";
 
-      if (needLowLabelEl)
-        needLowLabelEl.textContent = `按低提升率（${data.pctLow}%）`;
-      if (needHighLabelEl)
-        needHighLabelEl.textContent = `按高提升率（${data.pctHigh}%）`;
+      if (needLowLabelEl) needLowLabelEl.textContent = `按低提升率（${data.pctLow}%）`;
+      if (needHighLabelEl) needHighLabelEl.textContent = `按高提升率（${data.pctHigh}%）`;
 
       if (needLowEl) needLowEl.textContent = weeksLine(data.needWeeksLow, weeksNum);
       if (needHighEl) needHighEl.textContent = weeksLine(data.needWeeksHigh, weeksNum);
@@ -477,7 +473,6 @@
     const goalRaw = goalEl?.value?.trim() ?? "";
     const weeksRaw = weeksEl?.value?.trim() ?? "";
 
-    // ---- Required field checks (shake + message) ----
     if (!currentRaw) {
       showError({
         msg: "请先填写【当前可持续配速】（例如 5:10 或 5）。",
@@ -527,7 +522,6 @@
       return;
     }
 
-    // ---- Goal must be faster than current ----
     if (goalSec >= currentSec) {
       showError({
         msg: "目标配速需要比当前配速更快（数字更小）。例如：当前 5:10，目标 5:00。",
@@ -536,7 +530,6 @@
       return;
     }
 
-    // Update headings immediately
     renderWindowLabels(weeksNum);
 
     const data = computeAll({
@@ -546,7 +539,6 @@
       level,
     });
 
-    // Delay + show
     setLoading(true);
     if (outputBoxEl) outputBoxEl.style.display = "none";
 
