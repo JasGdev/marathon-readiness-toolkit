@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Progress Trendline</title>
+    <link rel="stylesheet" href="./style.css" />
+</head>
+
+<body>
+    <nav class="tool-nav">
+        <a href="../../index.html" class="tool-back">← Back to Navigation Menu</a>
+    </nav>
+
+    <!-- modules/4-progress-trendline/index.html (minimal working skeleton) -->
+    <div id="pt-root" class="pt-wrap">
+    
+        <!-- =========================
+             Setup (Start Trendline)
+        ========================== -->
+        <div id="pt-setup" class="pt-card">
+            <h1 class="pt-title">Progress Trendline</h1>
+            <p class="pt-sub">
+                Set your race date once. Then add check-ins to see how your projected race-day range evolves.
+            </p>
+    
+            <div id="pt-error" class="pt-error" style="display:none;"></div>
+    
+            <div class="pt-grid">
+                <div class="pt-field">
+                    <label class="pt-label" for="pt-race-date">Race date (YYYY-MM-DD) <span class="pt-req">*</span></label>
+                    <input class="pt-input" id="pt-race-date" type="date" placeholder="2026-03-01" />
+                </div>
+    
+                <div class="pt-field">
+                    <label class="pt-label" for="pt-goal-pace">Goal pace (optional, m:ss /km)</label>
+                    <input class="pt-input" id="pt-goal-pace" inputmode="numeric" placeholder="5:00" />
+                </div>
+            </div>
+    
+            <div id="pt-level-wrap" class="pt-levels">
+                <div class="pt-level-title">Runner level</div>
+                <label class="pt-radio"><input type="radio" name="level" value="beginner" checked /> Beginner</label>
+                <label class="pt-radio"><input type="radio" name="level" value="intermediate" /> Intermediate</label>
+                <label class="pt-radio"><input type="radio" name="level" value="advanced" /> Advanced</label>
+            </div>
+    
+            <button id="pt-start-btn" class="pt-btn" type="button">Start Trendline</button>
+    
+            <div class="pt-note">
+                Uses the same 8-week block improvement model as Module 3 to generate conservative / typical / optimistic
+                projection bands to race day.
+            </div>
+        </div>
+    
+        <!-- =========================
+             Check-ins (Unlocked after setup)
+        ========================== -->
+        <div id="pt-checkin" class="pt-card" style="display:none;">
+
+            <!-- Race settings (editable after Start Trendline) -->
+            <div class="pt-settings">
+                <h3 class="pt-h3">Race settings</h3>
+            
+                <div class="pt-grid">
+                    <div class="pt-field">
+                        <label class="pt-label" for="pt-edit-race-date">Race date</label>
+                        <input class="pt-input" id="pt-edit-race-date" type="date" />
+                    </div>
+            
+                    <div class="pt-field">
+                        <label class="pt-label" for="pt-edit-goal-pace">Goal pace (m:ss /km)</label>
+                        <input class="pt-input" id="pt-edit-goal-pace" inputmode="numeric" placeholder="5:00" />
+                    </div>
+                </div>
+
+                <div id="pt-edit-level-wrap" class="pt-levels">
+                    <div class="pt-level-title">Runner level</div>
+                    <label class="pt-radio"><input type="radio" name="edit-level" value="beginner" /> Beginner</label>
+                    <label class="pt-radio"><input type="radio" name="edit-level" value="intermediate" /> Intermediate</label>
+                    <label class="pt-radio"><input type="radio" name="edit-level" value="advanced" /> Advanced</label>
+                </div>
+
+            
+                <div class="pt-actions">
+                    <button id="pt-save-settings-btn" class="pt-btn pt-btn-ghost" type="button">
+                        Update race settings
+                    </button>
+                </div>
+            </div>
+            
+            <div class="pt-divider"></div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            <div class="pt-header-row">
+                <div>
+                    <h2 class="pt-h2">Check-ins</h2>
+                    <div class="pt-mini">
+                        Add a check-in pace (or calculate from a recent run). Projections update automatically against your
+                        race date.
+                    </div>
+                </div>
+            </div>
+    
+            <div class="pt-grid">
+                <div class="pt-field">
+                    <label class="pt-label" for="pt-checkin-date">Check-in date (YYYY-MM-DD) <span
+                            class="pt-req">*</span></label>
+                    <input class="pt-input" id="pt-checkin-date" type = 'date' placeholder="2026-02-05" />
+                </div>
+    
+                <div class="pt-field">
+                    <label class="pt-label" for="pt-pace">Current sustainable pace (m:ss /km) <span
+                            class="pt-req">*</span></label>
+                    <input class="pt-input" id="pt-pace" inputmode="numeric" placeholder="5:20" />
+                </div>
+            </div>
+
+
+
+    
+            <div class="pt-divider"></div>
+    
+            <div class="pt-h3">Or calculate pace from a recent run</div>
+    
+            <div class="pt-grid">
+                <div class="pt-field">
+                    <label class="pt-label" for="pt-dist-km">Distance (km)</label>
+                    <input class="pt-input" id="pt-dist-km" inputmode="decimal" placeholder="10" />
+                </div>
+    
+                <div class="pt-field">
+                    <label class="pt-label">Time (h:m:s)</label>
+                    <div class="pt-time">
+                        <input class="pt-input pt-time-input" id="pt-h" inputmode="numeric" placeholder="0" />
+                        <span class="pt-time-sep">:</span>
+                        <input class="pt-input pt-time-input" id="pt-m" inputmode="numeric" placeholder="45" />
+                        <span class="pt-time-sep">:</span>
+                        <input class="pt-input pt-time-input" id="pt-s" inputmode="numeric" placeholder="00" />
+                    </div>
+                </div>
+            </div>
+    
+            <div class="pt-actions">
+                <button id="pt-calc-pace-btn" class="pt-btn pt-btn-ghost" type="button">Calculate pace</button>
+                <button id="pt-add-btn" class="pt-btn" type="button">Add check-in</button>
+            </div>
+    
+            <div class="pt-divider"></div>
+    
+            <details class="pt-explain">
+                <summary class="pt-explain-summary">How to read this graph (optional)</summary>
+                <div class="pt-explain-body">
+                    <p>
+                        Each black dot is a check-in: your current sustainable pace on that date.
+                        The thin black line connects your check-ins so you can see direction over time.
+                    </p>
+            
+                    <p>
+                        After your <strong>latest</strong> check-in, the tool draws two projection lines forward to race day:
+                        <strong>orange</strong> is a conservative (low-end) improvement path,
+                        and <strong>green</strong> is an optimistic (high-end) improvement path.
+                    </p>
+            
+                    <p>
+                        <strong>Important:</strong> the improvement rates are based on your selected runner level (same assumptions
+                        as Module 3),
+                        using an <strong>8-week training block</strong> reference model:
+                        <br />• Beginner: <strong>4–6%</strong> per 8 weeks
+                        <br />• Intermediate: <strong>3–4%</strong> per 8 weeks
+                        <br />• Advanced: <strong>≈2%</strong> per 8 weeks
+                    </p>
+            
+                    <p>
+                        How to use it:
+                        If the orange/green band stays far above your goal line, your goal may be a stretch right now.
+                        If the band moves closer or crosses the goal line as you add check-ins, your goal is becoming more aligned.
+                        The most important signal is repeated check-ins over time — not any single day.
+                    </p>
+                </div>
+            </details>
+
+            
+            <div class="pt-chart-wrap">
+                <canvas id="pt-chart" class="pt-canvas"></canvas>
+            </div>
+
+    
+            <h3 class="pt-h3">History</h3>
+            <div id="pt-list" class="pt-list"></div>
+    
+            <div class="pt-footer-actions">
+                <button id="pt-clear-btn" class="pt-btn pt-btn-danger" type="button">Delete all data</button>
+            </div>
+    
+            <div class="pt-note">
+                Guest mode stores data in your browser. In WordPress account mode, check-ins will be tied to your user
+                account.
+            </div>
+        </div>
+    
+    </div>
+
+
+    <script type="module" src="./app.js"></script>
+</body>
+
+</html>

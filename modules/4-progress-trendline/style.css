@@ -1,0 +1,301 @@
+/* =====================================================
+   Progress Trendline – Scoped Styles
+   Matches Modules 1–3 visual system
+===================================================== */
+
+#pt-root {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #111827;
+}
+
+/* ---------- Card container ---------- */
+#pt-root .pt-card {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 18px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);
+    margin-bottom: 20px;
+}
+
+/* ---------- Titles ---------- */
+#pt-root .pt-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+#pt-root .pt-sub {
+    font-size: 14px;
+    color: #6b7280;
+    margin-bottom: 16px;
+}
+
+#pt-root .pt-h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+#pt-root .pt-h3 {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 12px 0 8px;
+}
+
+#pt-root .pt-mini {
+    font-size: 13px;
+    color: #6b7280;
+}
+
+/* ---------- Grid / layout ---------- */
+#pt-root .pt-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+@media (min-width: 768px) {
+    #pt-root .pt-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* ---------- Fields ---------- */
+#pt-root .pt-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+#pt-root .pt-label {
+    font-size: 13px;
+    color: #374151;
+}
+
+#pt-root .pt-req {
+    color: #dc2626;
+}
+
+/* ---------- Inputs ---------- */
+#pt-root .pt-input {
+    height: 44px;
+    padding: 0 12px;
+    font-size: 16px;
+    /* prevent mobile zoom */
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+    outline: none;
+    background: #ffffff;
+}
+
+#pt-root .pt-input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* Time input group */
+#pt-root .pt-time {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+#pt-root .pt-time-input {
+    width: 64px;
+    text-align: center;
+}
+
+#pt-root .pt-time-sep {
+    color: #6b7280;
+}
+
+/* ---------- Radio group ---------- */
+#pt-root .pt-levels {
+    display: flex;
+    gap: 14px;
+    margin: 10px 0 16px;
+    flex-wrap: wrap;
+}
+
+#pt-root .pt-level-title {
+    width: 100%;
+    font-size: 13px;
+    color: #374151;
+}
+
+#pt-root .pt-radio {
+    font-size: 14px;
+    color: #111827;
+}
+
+/* ---------- Buttons ---------- */
+#pt-root .pt-btn {
+    height: 44px;
+    padding: 0 16px;
+    border-radius: 10px;
+    border: none;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    background: #2563eb;
+    color: #ffffff;
+}
+
+#pt-root .pt-btn:hover {
+    background: #1d4ed8;
+}
+
+#pt-root .pt-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+#pt-root .pt-btn-ghost {
+    background: #f3f4f6;
+    color: #111827;
+}
+
+#pt-root .pt-btn-ghost:hover {
+    background: #e5e7eb;
+}
+
+#pt-root .pt-btn-danger {
+    background: #dc2626;
+}
+
+#pt-root .pt-btn-danger:hover {
+    background: #b91c1c;
+}
+
+/* ---------- Button rows ---------- */
+#pt-root .pt-actions,
+#pt-root .pt-footer-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+
+/* ---------- Divider ---------- */
+#pt-root .pt-divider {
+    height: 1px;
+    background: #e5e7eb;
+    margin: 16px 0;
+}
+
+/* ---------- Chart ---------- */
+#pt-root .pt-chart-wrap {
+    margin: 14px 0 8px;
+}
+
+#pt-root .pt-canvas {
+    width: 100%;
+    height: 220px;
+    /* IMPORTANT: canvas must have height */
+    display: block;
+    border-radius: 12px;
+    background: #f9fafb;
+}
+
+/* ---------- List / history ---------- */
+#pt-root .pt-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#pt-root .pt-row {
+    display: grid;
+    grid-template-columns: 90px 1fr auto;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 12px;
+    background: #f9fafb;
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+#pt-root .pt-date {
+    color: #374151;
+    font-weight: 500;
+}
+
+#pt-root .pt-pace {
+    color: #111827;
+}
+
+#pt-root .pt-proj {
+    grid-column: 1 / -1;
+    font-size: 13px;
+    color: #6b7280;
+}
+
+#pt-root .pt-del {
+    background: none;
+    border: none;
+    color: #dc2626;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+/* ---------- Empty state ---------- */
+#pt-root .pt-empty {
+    font-size: 14px;
+    color: #6b7280;
+    padding: 12px 4px;
+}
+
+/* ---------- Error ---------- */
+#pt-root .pt-error {
+    background: #fee2e2;
+    color: #7f1d1d;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 14px;
+    margin-bottom: 12px;
+}
+
+/* ---------- Notes ---------- */
+#pt-root .pt-note {
+    font-size: 13px;
+    color: #6b7280;
+    margin-top: 14px;
+    line-height: 1.6;
+}
+
+/* Settings */
+#pt-root .pt-settings {
+    background: #f9fafb;
+    border-radius: 12px;
+    padding: 12px;
+}
+
+#pt-root .pt-canvas {
+    background: #ffffff;
+    /* cleaner contrast for colored lines */
+}
+
+#pt-root .pt-canvas {
+    background: #ffffff;
+}
+
+
+#pt-root .pt-explain {
+    margin: 10px 0 12px;
+    background: #f9fafb;
+    border-radius: 12px;
+    padding: 10px 12px;
+}
+
+#pt-root .pt-explain-summary {
+    cursor: pointer;
+    font-weight: 600;
+}
+
+#pt-root .pt-explain-body p {
+    margin: 10px 0 0;
+    color: #374151;
+    line-height: 1.6;
+}
