@@ -1,0 +1,644 @@
+/* =====================================================
+   Progress Trendline – Scoped Styles
+   Matches Modules 1–3 visual system
+===================================================== */
+
+#pt-root {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #111827;
+}
+
+/* ---------- Card container ---------- */
+#pt-root .pt-card {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 18px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);
+    margin-bottom: 20px;
+}
+
+/* ---------- Titles ---------- */
+#pt-root .pt-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+#pt-root .pt-sub {
+    font-size: 14px;
+    color: #6b7280;
+    margin-bottom: 16px;
+}
+
+#pt-root .pt-h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+#pt-root .pt-h3 {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 12px 0 8px;
+}
+
+#pt-root .pt-mini {
+    font-size: 13px;
+    color: #6b7280;
+}
+
+/* ---------- Grid / layout ---------- */
+#pt-root .pt-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+@media (min-width: 768px) {
+    #pt-root .pt-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* ---------- Fields ---------- */
+#pt-root .pt-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+#pt-root .pt-label {
+    font-size: 13px;
+    color: #374151;
+}
+
+#pt-root .pt-req {
+    color: #dc2626;
+}
+
+/* ---------- Inputs ---------- */
+#pt-root .pt-input {
+    height: 44px;
+    padding: 0 12px;
+    font-size: 16px;
+    /* prevent mobile zoom */
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+    outline: none;
+    background: #ffffff;
+}
+
+#pt-root .pt-input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* Time input group */
+#pt-root .pt-time {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+#pt-root .pt-time-input {
+    width: 64px;
+    text-align: center;
+}
+
+#pt-root .pt-time-sep {
+    color: #6b7280;
+}
+
+/* ---------- Radio group ---------- */
+#pt-root .pt-levels {
+    display: flex;
+    gap: 14px;
+    margin: 10px 0 16px;
+    flex-wrap: wrap;
+}
+
+#pt-root .pt-level-title {
+    width: 100%;
+    font-size: 13px;
+    color: #374151;
+}
+
+#pt-root .pt-radio {
+    font-size: 14px;
+    color: #111827;
+}
+
+/* ---------- Buttons ---------- */
+#pt-root .pt-btn {
+    height: 44px;
+    padding: 0 16px;
+    border-radius: 10px;
+    border: none;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    background: #2563eb;
+    color: #ffffff;
+}
+
+#pt-root .pt-btn:hover {
+    background: #1d4ed8;
+}
+
+#pt-root .pt-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+#pt-root .pt-btn-ghost {
+    background: #f3f4f6;
+    color: #111827;
+}
+
+#pt-root .pt-btn-ghost:hover {
+    background: #e5e7eb;
+}
+
+#pt-root .pt-btn-danger {
+    background: #dc2626;
+}
+
+#pt-root .pt-btn-danger:hover {
+    background: #b91c1c;
+}
+
+/* ---------- Button rows ---------- */
+#pt-root .pt-actions,
+#pt-root .pt-footer-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+
+/* ---------- Divider ---------- */
+#pt-root .pt-divider {
+    height: 1px;
+    background: #e5e7eb;
+    margin: 16px 0;
+}
+
+/* ---------- Chart ---------- */
+#pt-root .pt-chart-wrap {
+    margin: 14px 0 8px;
+}
+
+#pt-root .pt-canvas {
+    width: 100%;
+    height: 220px;
+    /* IMPORTANT: canvas must have height */
+    display: block;
+    border-radius: 12px;
+    background: #f9fafb;
+}
+
+/* ---------- List / history ---------- */
+#pt-root .pt-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#pt-root .pt-row {
+    display: grid;
+    grid-template-columns: 90px 1fr auto;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 12px;
+    background: #f9fafb;
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+#pt-root .pt-date {
+    color: #374151;
+    font-weight: 500;
+}
+
+#pt-root .pt-pace {
+    color: #111827;
+}
+
+#pt-root .pt-proj {
+    grid-column: 1 / -1;
+    font-size: 13px;
+    color: #6b7280;
+}
+
+#pt-root .pt-del {
+    background: none;
+    border: none;
+    color: #dc2626;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+/* ---------- Empty state ---------- */
+#pt-root .pt-empty {
+    font-size: 14px;
+    color: #6b7280;
+    padding: 12px 4px;
+}
+
+/* ---------- Error ---------- */
+#pt-root .pt-error {
+    background: #fee2e2;
+    color: #7f1d1d;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 14px;
+    margin-bottom: 12px;
+}
+
+/* ---------- Notes ---------- */
+#pt-root .pt-note {
+    font-size: 13px;
+    color: #6b7280;
+    margin-top: 14px;
+    line-height: 1.6;
+}
+
+/* Settings */
+#pt-root .pt-settings {
+    background: #f9fafb;
+    border-radius: 12px;
+    padding: 12px;
+}
+
+#pt-root .pt-canvas {
+    background: #ffffff;
+    /* cleaner contrast for colored lines */
+}
+
+#pt-root .pt-canvas {
+    background: #ffffff;
+}
+
+
+#pt-root .pt-explain {
+    margin: 10px 0 12px;
+    background: #f9fafb;
+    border-radius: 12px;
+    padding: 10px 12px;
+}
+
+#pt-root .pt-explain-summary {
+    cursor: pointer;
+    font-weight: 600;
+}
+
+#pt-root .pt-explain-body p {
+    margin: 10px 0 0;
+    color: #374151;
+    line-height: 1.6;
+}
+
+/* =========================
+   Dropdown sections (details/summary)
+========================= */
+#pt-root .pt-details {
+    border: 1px solid rgba(229, 231, 235, 0.9);
+    border-radius: 14px;
+    background: #fff;
+    overflow: hidden;
+    margin: 12px 0;
+}
+
+#pt-root .pt-summary {
+    cursor: pointer;
+    list-style: none;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font-weight: 700;
+    color: #111827;
+}
+
+#pt-root .pt-summary::-webkit-details-marker {
+    display: none;
+}
+
+#pt-root .pt-summary-hint {
+    font-weight: 600;
+    font-size: 12px;
+    color: #6B7280;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: rgba(229, 231, 235, 0.7);
+}
+
+#pt-root .pt-details[open] .pt-summary {
+    border-bottom: 1px solid rgba(229, 231, 235, 0.9);
+}
+
+#pt-root .pt-details-body {
+    padding: 14px;
+}
+
+/* =========================
+   Center + widen action buttons
+========================= */
+#pt-root .pt-actions-center {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+#pt-root .pt-btn-wide {
+    min-width: 240px;
+    width: min(420px, 100%);
+}
+
+/* Mobile: make them stack nicely */
+@media (max-width: 520px) {
+    #pt-root .pt-actions-center {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #pt-root .pt-btn-wide {
+        width: 100%;
+        min-width: unset;
+    }
+}
+
+/* =========================
+   Mobile-first layout + responsive grid
+   (Drop-in for Module 4)
+========================= */
+
+/* Make the tool readable on phones */
+#pt-root.pt-wrap {
+    width: 100%;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 14px 12px;
+    box-sizing: border-box;
+}
+
+/* Card spacing */
+#pt-root .pt-card {
+    padding: 16px 14px;
+    border-radius: 16px;
+}
+
+/* Prevent mobile zoom: 16px inputs */
+#pt-root .pt-input {
+    font-size: 16px;
+    height: 46px;
+    line-height: 46px;
+    padding: 0 12px;
+    border-radius: 12px;
+    box-sizing: border-box;
+}
+
+/* Buttons: tap-friendly */
+#pt-root .pt-btn {
+    min-height: 46px;
+    font-size: 16px;
+    border-radius: 12px;
+}
+
+/* Titles scale down nicely on small screens */
+#pt-root .pt-title {
+    font-size: 22px;
+    line-height: 1.2;
+    margin-bottom: 6px;
+}
+
+#pt-root .pt-sub {
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* Grid defaults to single-column on mobile */
+#pt-root .pt-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+
+/* Time inputs stack cleanly and stay tappable */
+#pt-root .pt-time {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr;
+    align-items: center;
+    gap: 8px;
+}
+
+#pt-root .pt-time-input {
+    text-align: center;
+    min-width: 0;
+}
+
+/* Actions: stack buttons on mobile (you already added pt-actions-center + pt-btn-wide) */
+@media (max-width: 520px) {
+    #pt-root .pt-actions {
+        gap: 10px;
+    }
+}
+
+/* Chart responsive: ensure canvas has a real height */
+#pt-root .pt-chart-wrap {
+    width: 100%;
+}
+
+#pt-root .pt-canvas {
+    width: 100%;
+    height: 280px;
+    /* mobile default */
+    display: block;
+}
+
+/* History rows: wrap instead of squeezing */
+#pt-root .pt-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 6px;
+    padding: 10px 0;
+}
+
+#pt-root .pt-date,
+#pt-root .pt-pace,
+#pt-root .pt-proj {
+    overflow-wrap: anywhere;
+}
+
+#pt-root .pt-del {
+    justify-self: start;
+    min-height: 40px;
+}
+
+/* Details (dropdowns) spacing on mobile */
+#pt-root .pt-details {
+    margin: 10px 0;
+}
+
+#pt-root .pt-details-body {
+    padding: 12px;
+}
+
+/* =========================
+   Desktop enhancements
+========================= */
+@media (min-width: 720px) {
+    #pt-root.pt-wrap {
+        padding: 18px 18px;
+    }
+
+    #pt-root .pt-card {
+        padding: 18px 18px;
+        border-radius: 18px;
+    }
+
+    /* Two-column grid on desktop */
+    #pt-root .pt-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+    }
+
+    /* Slightly taller canvas on desktop */
+    #pt-root .pt-canvas {
+        height: 340px;
+    }
+
+    /* History rows become 4-column on desktop */
+    #pt-root .pt-row {
+        grid-template-columns: 110px 120px 1fr auto;
+        align-items: center;
+        gap: 12px;
+    }
+
+    #pt-root .pt-del {
+        justify-self: end;
+    }
+}
+
+/* =========================
+   Very small devices (narrow phones)
+========================= */
+@media (max-width: 360px) {
+    #pt-root .pt-title {
+        font-size: 20px;
+    }
+
+    #pt-root .pt-canvas {
+        height: 260px;
+    }
+
+    #pt-root .pt-input {
+        height: 44px;
+        line-height: 44px;
+    }
+
+    #pt-root .pt-btn {
+        min-height: 44px;
+    }
+}
+
+#pt-root .pt-chart-wrap {
+    width: 100%;
+}
+
+#pt-root .pt-canvas {
+    width: 100%;
+    display: block;
+}
+
+/* Chart should use full available width */
+.pt-chart-wrap {
+    width: 100%;
+    max-width: 100%;
+}
+
+.pt-canvas {
+    display: block;
+    width: 100%;
+    height: 320px;
+    /* can adjust; JS will read rect.height if set */
+}
+
+/* Make root/container use more of the screen on mobile */
+.pt-wrap {
+    width: 100%;
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 16px;
+}
+
+@media (max-width: 520px) {
+    .pt-wrap {
+        padding: 6px;
+        /* was too roomy */
+    }
+
+    .pt-card {
+        padding: 12px;
+        /* tighten the card */
+    }
+}
+
+
+/* Base layout (desktop/tablet) */
+.pt-wrap {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 16px;
+    box-sizing: border-box;
+}
+
+/* MOBILE: go edge-to-edge */
+@media (max-width: 520px) {
+    .pt-wrap {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        padding-top: 6px;
+        padding-bottom: 6px;
+    }
+
+    /* If pt-root exists as an inner wrapper, also neutralize it */
+    #pt-root {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    /* Cards still keep breathing room */
+    .pt-card {
+        margin-left: 0;
+        margin-right: 0;
+        border-radius: 0;
+        /* optional: full-bleed look */
+    }
+}
+
+/* Kill WP theme side padding ONLY for this module */
+.entry-content .pt-wrap,
+.entry-content #pt-root {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+/* Make date input inherit the same font as everything else */
+.pt-input[type="date"] {
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+}
+
+.pt-input[type="date"] {
+    appearance: none;
+    -webkit-appearance: none;
+    background-color: var(--pt-input-bg, #fff);
+    color: inherit;
+}
