@@ -11,6 +11,70 @@ import {
 const LS_KEY = "mrt_pt_v1";
 
 // ===========================
+// WP Cloud Sync (WooCommerce / WordPress logged-in users)
+// - Uses window.MRT injected by plugin:
+//   window.MRT = { restUrl, nonce, isLoggedIn }
+// - REST endpoints:
+//   GET  /wp-json/mrt/v1/progress-trendline
+//   POST /wp-json/mrt/v1/progress-trendline
+// ===========================
+const WP = window.MRT || {};
+const IS_LOGGED_IN = !!WP.isLoggedIn;
+const REST_ENDPOINT = WP.restUrl ? `${WP.restUrl}mrt/v1/progress-trendline` : null;
+
+function debounce(fn, wait = 800) {
+  let t = null;
+  return (...args) => {
+    clearTimeout(t);
+    t = setTimeout(() => fn(...args), wait);
+  };
+}
+
+async function fetchServerPayload() {
+  if (!IS_LOGGED_IN || !REST_ENDPOINT) return null;
+  try {
+    const res = await fetch(REST_ENDPOINT, {
+      method: "GET",
+      credentials: "same-origin",
+      headers: { "X-WP-Nonce": WP.nonce || "" },
+    });
+    if (!res.ok) return null;
+    return await res.json(); // { version, state: {config, checkins}, updatedAt }
+  } catch {
+    return null;
+  }
+}
+
+async function postServerPayload(payload) {
+  if (!IS_LOGGED_IN || !REST_ENDPOINT) return false;
+  try {
+    const res = await fetch(REST_ENDPOINT, {
+      method: "POST",
+      credentials: "same-origin",
+      headers: {
+        "Content-Type": "application/json",
+        "X-WP-Nonce": WP.nonce || "",
+      },
+      body: JSON.stringify(payload),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+// ✅ immediate server clear helper
+async function clearServerPayloadNow() {
+  if (!IS_LOGGED_IN || !REST_ENDPOINT) return false;
+  const payload = {
+    version: 1,
+    state: { config: null, checkins: [] },
+    updatedAt: Date.now(),
+  };
+  return await postServerPayload(payload);
+}
+
+// ===========================
 // DOM
 // ===========================
 const root = document.querySelector("#pt-root");
@@ -62,7 +126,6 @@ const clearBtn = $("clear-btn");
 function applyPrimaryActionLayout() {
   if (!root) return;
 
-  // ✅ Only target the action row that contains the two main buttons
   const actionsEl =
     calcPaceBtn?.closest(".pt-actions") ||
     addBtn?.closest(".pt-actions") ||
@@ -85,25 +148,109 @@ function applyPrimaryActionLayout() {
     b.style.minWidth = "240px";
   });
 }
-
 window.addEventListener("resize", applyPrimaryActionLayout);
 
 // ===========================
-// State + Persistence
+// State + Persistence (Local + Cloud)
 // ===========================
+function normalizeStateShape(s) {
+  const obj = s && typeof s === "object" ? s : null;
+  return {
+    config: obj?.config ?? null,
+    checkins: Array.isArray(obj?.checkins) ? obj.checkins : [],
+    updatedAt: Number.isFinite(obj?.updatedAt) ? obj.updatedAt : 0,
+  };
+}
+
 function loadState() {
   try {
     const raw = localStorage.getItem(LS_KEY);
     const s = raw ? JSON.parse(raw) : null;
-    return s && typeof s === "object" ? s : { config: null, checkins: [] };
+    return normalizeStateShape(s);
   } catch {
-    return { config: null, checkins: [] };
+    return { config: null, checkins: [], updatedAt: 0 };
   }
 }
 let state = loadState();
 
-function saveState() {
+// Debounced cloud saver (only when logged in)
+const saveCloudDebounced = debounce(async () => {
+  const payload = {
+    version: 1,
+    state: { config: state.config, checkins: state.checkins },
+    updatedAt: state.updatedAt,
+  };
+  await postServerPayload(payload);
+}, 900);
+
+function saveState({ silentCloud = false } = {}) {
+  state.updatedAt = Date.now();
   localStorage.setItem(LS_KEY, JSON.stringify(state));
+
+  if (IS_LOGGED_IN && !silentCloud) {
+    saveCloudDebounced();
+  }
+}
+
+// ===========================
+// UI gating
+// ===========================
+function setMode(isStarted) {
+  if (setupBox) setupBox.style.display = isStarted ? "none" : "block";
+  if (checkinBox) checkinBox.style.display = isStarted ? "block" : "none";
+  if (chartCardEl) chartCardEl.style.display = isStarted ? "block" : "none";
+  if (dataCardEl) dataCardEl.style.display = isStarted ? "block" : "none";
+}
+
+// ===========================
+// Cloud hydration / merge
+// ===========================
+async function hydrateFromCloudIfNeeded() {
+  if (!IS_LOGGED_IN) return;
+
+  const server = await fetchServerPayload();
+  if (!server || !server.state) return;
+
+  const serverState = normalizeStateShape({
+    config: server.state?.config ?? null,
+    checkins: server.state?.checkins ?? [],
+    updatedAt: typeof server.updatedAt === "number" ? server.updatedAt : 0,
+  });
+
+  const localEmpty =
+    !state.config && (!state.checkins || state.checkins.length === 0);
+  const serverEmpty =
+    !serverState.config &&
+    (!serverState.checkins || serverState.checkins.length === 0);
+
+  if (serverEmpty && !localEmpty) {
+    // Server has nothing; push local up
+    saveState(); // triggers debounced cloud save
+    return;
+  }
+
+  if (!serverEmpty && localEmpty) {
+    // Local empty; take server
+    state = serverState;
+    localStorage.setItem(LS_KEY, JSON.stringify(state));
+    setMode(!!state.config);
+    rerenderAll();
+    return;
+  }
+
+  if (!serverEmpty && !localEmpty) {
+    // Both have data; choose newest updatedAt
+    const serverNewer = (serverState.updatedAt || 0) >= (state.updatedAt || 0);
+    if (serverNewer) {
+      state = serverState;
+      localStorage.setItem(LS_KEY, JSON.stringify(state));
+      setMode(!!state.config);
+      rerenderAll();
+    } else {
+      // Local newer -> upload (debounced)
+      saveState();
+    }
+  }
 }
 
 // ===========================
@@ -115,7 +262,6 @@ function saveState() {
   const mm = String(today.getMonth() + 1).padStart(2, "0");
   const dd = String(today.getDate()).padStart(2, "0");
   const iso = `${yyyy}-${mm}-${dd}`;
-
   if (checkinDateEl && !checkinDateEl.value) checkinDateEl.value = iso;
 })();
 
@@ -139,7 +285,6 @@ function weeksBetweenMs(aMs, bMs) {
 }
 
 function parsePaceToSeconds(paceStr) {
-  // ✅ 容错：允许 "5.20" 作为 "5:20"
   const s = String(paceStr).trim().replace(".", ":");
   if (!s) return null;
 
@@ -160,7 +305,7 @@ function parsePaceToSeconds(paceStr) {
 }
 
 function formatPace(secPerKm) {
-  const sInt = Math.round(secPerKm); // 仅在格式化文本时四舍五入
+  const sInt = Math.round(secPerKm);
   const m = Math.floor(sInt / 60);
   const s = String(sInt % 60).padStart(2, "0");
   return `${m}:${s}`;
@@ -203,18 +348,6 @@ function calcPaceFromRun(distKm, hh, mm, ss) {
   const total = hh * 3600 + mm * 60 + ss;
   if (!(total > 0)) return null;
   return Math.round(total / distKm);
-}
-
-// ===========================
-// UI gating
-// ===========================
-function setMode(isStarted) {
-  if (setupBox) setupBox.style.display = isStarted ? "none" : "block";
-  if (checkinBox) checkinBox.style.display = isStarted ? "block" : "none";
-
-  // NEW: 同时控制图表卡片 & 数据卡片（不在 pt-checkin 内）
-  if (chartCardEl) chartCardEl.style.display = isStarted ? "block" : "none";
-  if (dataCardEl) dataCardEl.style.display = isStarted ? "block" : "none";
 }
 
 // ===========================
@@ -360,9 +493,6 @@ function addWeeksMs(ms, weeks) {
   return ms + weeks * 7 * 24 * 3600 * 1000;
 }
 
-/**
- * 从最后一次打卡到比赛日生成投影折线（每 stepWeeks 采样一次，让曲线呈现“递减收益”）
- */
 function buildProjectionSeries({
   startMs,
   startPaceSec,
@@ -395,7 +525,6 @@ function buildProjectionSeries({
     points.push({ ms, pace });
   }
 
-  // 保证终点精确落在比赛日
   const endPace = paceAfterWeeks({
     currentSecPerKm: startPaceSec,
     rate,
@@ -466,7 +595,6 @@ function renderChart() {
   const level = state.config.level || "beginner";
   const maxImp = getMaxTotalImprovementByLevel(level);
 
-  // --- 目标配速（兼容旧 localStorage 可能存成 string 的情况）---
   let goalSec = null;
   const rawGoal = state.config.goalPaceSec;
 
@@ -476,7 +604,6 @@ function renderChart() {
     goalSec = parsePaceToSeconds(rawGoal.trim());
   }
 
-  // 可选：如果之前是字符串，顺便规范化一次
   if (goalSec !== null && !Number.isFinite(rawGoal)) {
     state.config.goalPaceSec = goalSec;
     saveState();
@@ -543,7 +670,6 @@ function renderChart() {
   const yScale = (sec) =>
     bottom - ((sec - minY) / (maxY - minY)) * (bottom - top);
 
-  // Y 网格 + 标签
   const step = niceStepSeconds(maxY - minY);
   const tickStart = Math.ceil(minY / step) * step;
   const tickEnd = Math.floor(maxY / step) * step;
@@ -568,7 +694,6 @@ function renderChart() {
     ctx.fillText(formatPace(v), left - 6, y);
   }
 
-  // 月刻度
   const monthTicks = getMonthTicks(safeMinX, maxX);
 
   monthTicks.forEach((d) => {
@@ -607,7 +732,6 @@ function renderChart() {
     }
   });
 
-  // 比赛日竖线（无文字）
   {
     const xRace = xScale(raceMs);
     ctx.strokeStyle = "#9CA3AF";
@@ -619,7 +743,6 @@ function renderChart() {
     ctx.globalAlpha = 1;
   }
 
-  // 目标线
   if (goalSec !== null) {
     const yG = yScale(goalSec);
 
@@ -643,7 +766,6 @@ function renderChart() {
     ctx.restore();
   }
 
-  // 图例
   const colorConservative = "#F59E0B";
   const colorOptimistic = "#10B981";
   const sampleLen = 24;
@@ -734,7 +856,6 @@ function renderChart() {
 
   if (!pts.length) return;
 
-  // 历史线
   ctx.strokeStyle = "#111827";
   ctx.globalAlpha = 0.35;
   ctx.beginPath();
@@ -747,7 +868,6 @@ function renderChart() {
   ctx.stroke();
   ctx.globalAlpha = 1;
 
-  // 从最近一次打卡开始投影（曲线）
   const last = pts[pts.length - 1];
 
   const conSeries = buildProjectionSeries({
@@ -780,7 +900,6 @@ function renderChart() {
     drawPolyline(ctx, optSeries, xScale, yScale);
   }
 
-  // 点
   const lastIdx = pts.length - 1;
   pts.forEach((p, i) => {
     const x = xScale(p.ms);
@@ -810,12 +929,12 @@ function renderChart() {
 // ===========================
 // Clear all guest data
 // ===========================
-clearBtn?.addEventListener("click", () => {
+clearBtn?.addEventListener("click", async () => {
   const ok = confirm("这将永久删除所有访客数据（比赛设置 + 打卡记录）。确定继续？");
   if (!ok) return;
 
   localStorage.removeItem(LS_KEY);
-  state = { config: null, checkins: [] };
+  state = { config: null, checkins: [], updatedAt: 0 };
 
   if (raceDateEl) raceDateEl.value = "";
   if (goalPaceEl) goalPaceEl.value = "";
@@ -827,6 +946,10 @@ clearBtn?.addEventListener("click", () => {
   if (hEl) hEl.value = "";
   if (mEl) mEl.value = "";
   if (sEl) sEl.value = "";
+
+  if (IS_LOGGED_IN) {
+    await clearServerPayloadNow(); // ✅ await
+  }
 
   setMode(false);
   rerenderAll();
@@ -928,14 +1051,12 @@ addBtn?.addEventListener("click", () => {
     return;
   }
 
-  // ✅ 不允许打卡日期晚于比赛日
   const raceMs = parseDateToMs(state.config.raceDate);
   if (raceMs && checkinMs > raceMs) {
     showError("打卡日期必须早于或等于比赛日期。");
     return;
   }
 
-  // ✅ 不允许同一天重复打卡
   const exists = state.checkins.some((c) => c.date === date);
   if (exists) {
     showError("该日期已有打卡记录。请先删除该记录或选择新的日期。");
@@ -956,7 +1077,6 @@ addBtn?.addEventListener("click", () => {
     source: "pace",
   });
 
-  // ✅ 体验：添加后清空配速输入
   if (paceInputEl) paceInputEl.value = "";
 
   saveState();
@@ -970,12 +1090,15 @@ function rerenderAll() {
   applyPrimaryActionLayout();
   syncSettingsUI();
 
-  if (!state.config) return; // 仅显示设置页，不渲染列表/图表
+  if (!state.config) return;
 
   renderList();
   renderChart();
 }
 
 // init
-setMode(!!state.config);
-rerenderAll();
+(async function init() {
+  setMode(!!state.config);
+  rerenderAll();
+  await hydrateFromCloudIfNeeded();
+})();

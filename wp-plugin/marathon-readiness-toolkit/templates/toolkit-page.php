@@ -1,11 +1,6 @@
 <div id="mrt-toolkit-page">
   <style>
-    /* =========================================================
-      MRT Toolkit Page (Scoped)
-      - Designed to look clean inside any WP theme
-      - Only affects elements inside #mrt-toolkit-page
-    ========================================================== */
-
+    /* (UNCHANGED) — keeping your entire scoped CSS as-is */
     #mrt-toolkit-page{
       --mrt-bg: #f8fafc;
       --mrt-card: #ffffff;
@@ -28,7 +23,6 @@
       line-height: 1.75;
     }
 
-    /* Soft backdrop wrapper */
     #mrt-toolkit-page .mrt-shell{
       background: var(--mrt-bg);
       border: 1px solid var(--mrt-border);
@@ -37,7 +31,6 @@
       box-shadow: var(--mrt-shadow-sm);
     }
 
-    /* Mini reset (only inside toolkit) to avoid theme weirdness */
     #mrt-toolkit-page,
     #mrt-toolkit-page *{
       box-sizing: border-box;
@@ -51,7 +44,6 @@
     #mrt-toolkit-page p{ margin-top: 8px; }
     #mrt-toolkit-page strong{ font-weight: 800; }
 
-    /* Header card */
     #mrt-toolkit-page .mrt-hero{
       background: var(--mrt-card);
       border: 1px solid var(--mrt-border);
@@ -72,7 +64,6 @@
       line-height: 1.75;
     }
 
-    /* Callout */
     #mrt-toolkit-page .mrt-callout{
       margin-top: 12px;
       padding: 12px 14px;
@@ -84,7 +75,6 @@
       line-height: 1.7;
     }
 
-    /* Accordion stack */
     #mrt-toolkit-page .mrt-steps{
       margin-top: 14px;
       display: grid;
@@ -192,12 +182,10 @@
       display: none;
     }
 
-    /* Make embedded module content breathe */
     #mrt-toolkit-page .mrt-moduleSlot{
       padding: 2px 0 0 0;
     }
 
-    /* Responsive */
     @media (min-width: 768px){
       #mrt-toolkit-page{ padding: 22px 18px; }
       #mrt-toolkit-page .mrt-shell{ padding: 18px; }
@@ -205,67 +193,63 @@
       #mrt-toolkit-page .mrt-stepTitle{ font-size: 19px; }
     }
 
-    /* Toolkit container: reduce padding on small screens */
-@media (max-width: 640px){
-  #mrt-toolkit-page{
-    padding-left: 8px;
-    padding-right: 8px;
-  }
+    @media (max-width: 640px){
+      #mrt-toolkit-page{
+        padding-left: 8px;
+        padding-right: 8px;
+      }
 
-  #mrt-toolkit-page .mrt-shell{
-    padding: 10px;
-    border-radius: 16px;
-  }
-}
+      #mrt-toolkit-page .mrt-shell{
+        padding: 10px;
+        border-radius: 16px;
+      }
+    }
 
-/* Allow embedded modules to breathe */
-@media (max-width: 640px){
-  #mrt-toolkit-page #race-time-estimator,
-  #mrt-toolkit-page #goal-pace-converter,
-  #mrt-toolkit-page #timeline-check{
-    max-width: 100%;
-    width: 100%;
-    margin: 12px auto;
-    padding-left: 0;
-    padding-right: 0;
-  }
-}
+    @media (max-width: 640px){
+      #mrt-toolkit-page #race-time-estimator,
+      #mrt-toolkit-page #goal-pace-converter,
+      #mrt-toolkit-page #timeline-check,
+      #mrt-toolkit-page #pt-root{
+        max-width: 100%;
+        width: 100%;
+        margin: 12px auto;
+        padding-left: 0;
+        padding-right: 0;
+      }
+    }
 
-/* Fix WP theme input min-width causing overflow */
-#mrt-toolkit-page input,
-#mrt-toolkit-page select{
-  min-width: 0;
-  max-width: 100%;
-}
+    #mrt-toolkit-page input,
+    #mrt-toolkit-page select{
+      min-width: 0;
+      max-width: 100%;
+    }
 
-/* Grid inputs (HH : MM : SS etc.) must be shrinkable */
-#mrt-toolkit-page .gpc-time-row,
-#mrt-toolkit-page .rte-time-row{
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
+    #mrt-toolkit-page .gpc-time-row,
+    #mrt-toolkit-page .rte-time-row{
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
 
-#mrt-toolkit-page .gpc-time-box,
-#mrt-toolkit-page .rte-time-box{
-  min-width: 0;
-}
+    #mrt-toolkit-page .gpc-time-box,
+    #mrt-toolkit-page .rte-time-box{
+      min-width: 0;
+    }
   </style>
 
   <div class="mrt-shell">
-    <!-- Header / Explanation -->
     <div class="mrt-hero">
       <h2 class="mrt-title">马拉松备赛目标校准工具</h2>
       <p class="mrt-sub">
-        这里有 3 个小工具，按顺序使用效果最好：先看<strong>现状</strong>，再换算<strong>目标配速</strong>，最后做一次<strong>目标与时间的现实校准</strong>。
+        这里有 4 个小工具，按顺序使用效果最好：先看<strong>现状</strong>，再换算<strong>目标配速</strong>，然后做一次<strong>目标与时间的现实校准</strong>，最后用<strong>趋势线</strong>持续打卡看进度。
         它们<strong>不生成训练计划</strong>，也<strong>不承诺提升幅度或比赛成绩</strong>，只是帮助你理解「当前水平 × 目标 × 时间」的关系。
       </p>
 
       <div class="mrt-callout">
-        <strong>怎么用最舒服：</strong>一次只打开一个模块；如果第 3 个模块显示差距很大，不代表“不可能”，只代表可能需要更多时间、更一致的训练结构，或需要调整目标预期。
+        <strong>怎么用最舒服：</strong>一次只打开一个模块；如果结果显示差距很大，不代表“不可能”，只代表可能需要更多时间、更一致的训练结构，或需要调整目标预期。
       </div>
     </div>
 
-    <!-- Accordion -->
     <div class="mrt-steps" role="region" aria-label="Marathon Readiness Toolkit Modules">
+
       <!-- Step 1 -->
       <section class="mrt-step">
         <button class="mrt-stepBtn" type="button" aria-expanded="true" aria-controls="mrt-panel-1" id="mrt-btn-1">
@@ -328,6 +312,28 @@
           </div>
         </div>
       </section>
+
+      <!-- ✅ Step 4 -->
+      <section class="mrt-step">
+        <button class="mrt-stepBtn" type="button" aria-expanded="false" aria-controls="mrt-panel-4" id="mrt-btn-4">
+          <div>
+            <div class="mrt-kicker"><span class="mrt-kickerDot"></span> 第四步｜持续打卡看趋势</div>
+            <h3 class="mrt-stepTitle">我的比赛日预测区间，是否在变好？</h3>
+            <p class="mrt-stepDesc">设置比赛日期后持续添加打卡，观察保守 / 乐观预测线如何随时间变化。</p>
+          </div>
+          <div class="mrt-chevron" aria-hidden="true">⌄</div>
+        </button>
+
+        <div class="mrt-panel" id="mrt-panel-4" hidden>
+          <div class="mrt-panelInner">
+            <div class="mrt-moduleSlot">
+              <?php echo do_shortcode('[progress_trendline]'); ?>
+            </div>
+            <p class="mrt-helper">提示：趋势线更适合“持续观察”，不要用单次跑步结果下判断。</p>
+          </div>
+        </div>
+      </section>
+
     </div>
 
     <script>

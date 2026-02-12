@@ -9,237 +9,234 @@
 </head>
 
 <body>
-    <nav class="tool-nav">
+    <!-- <nav class="tool-nav">
         <a href="../../index.html" class="tool-back">← 返回导航菜单</a>
-    </nav>
+    </nav> -->
 
-    <!-- modules/4-progress-trendline/index.html -->
-    <div id="pt-root" class="pt-wrap">
+    <!-- modules/progress-trendline/index.html (WP partial) -->
 
-        <!-- =========================
-             Setup (Start Trendline)
-        ========================== -->
-        <div id="pt-setup" class="pt-card">
-            <h1 class="pt-title">进度趋势线</h1>
-            <p class="pt-sub">
-                先设置一次比赛日期。之后添加打卡记录，观察比赛日预测区间如何随时间变化。
-            </p>
+<div id="pt-root" class="pt-wrap">
 
-            <div id="pt-error" class="pt-error" style="display:none;"></div>
+  <!-- =========================
+       Setup (Start Trendline)
+  ========================== -->
+  <div id="pt-setup" class="pt-card">
+    <h1 class="pt-title">进度趋势线</h1>
+    <p class="pt-sub">
+      先设置一次比赛日期。之后添加打卡记录，观察比赛日预测区间如何随时间变化。
+    </p>
 
-            <div class="pt-grid">
-                <div class="pt-field">
-                    <label class="pt-label" for="pt-race-date">比赛日期（YYYY-MM-DD） <span class="pt-req">*</span></label>
-                    <input class="pt-input" id="pt-race-date" type="date" placeholder="2026-03-01" />
-                </div>
+    <div id="pt-error" class="pt-error" style="display:none;"></div>
 
-                <div class="pt-field">
-                    <label class="pt-label" for="pt-goal-pace">目标配速（可选，m:ss /km）</label>
-                    <input class="pt-input" id="pt-goal-pace" inputmode="numeric" placeholder="5:00" />
-                </div>
-            </div>
+    <div class="pt-grid">
+      <div class="pt-field">
+        <label class="pt-label" for="pt-race-date">比赛日期（YYYY-MM-DD） <span class="pt-req">*</span></label>
+        <input class="pt-input" id="pt-race-date" type="date" placeholder="2026-03-01" />
+      </div>
 
-            <div id="pt-level-wrap" class="pt-levels">
-                <div class="pt-level-title">跑者水平</div>
-                <label class="pt-radio"><input type="radio" name="level" value="beginner" checked /> 新手</label>
-                <label class="pt-radio"><input type="radio" name="level" value="intermediate" /> 进阶</label>
-                <label class="pt-radio"><input type="radio" name="level" value="advanced" /> 高阶</label>
-            </div>
-
-            <button id="pt-start-btn" class="pt-btn" type="button">开始趋势线</button>
-
-            <div class="pt-note">
-                使用与 Module 3 相同的「每 8 周训练周期」提升模型，生成保守 / 典型 / 乐观的比赛日预测区间。
-            </div>
-        </div>
-
-        <!-- =========================
-             Check-ins (Unlocked after setup)
-        ========================== -->
-        <div id="pt-checkin" class="pt-card" style="display:none;">
-
-            <details class="pt-details">
-                <summary class="pt-summary">
-                    <span>比赛设置</span>
-                    <span class="pt-summary-hint">可选</span>
-                </summary>
-
-                <div class="pt-details-body">
-                    <div class="pt-grid">
-                        <div class="pt-field">
-                            <label class="pt-label" for="pt-edit-race-date">比赛日期</label>
-                            <input class="pt-input" id="pt-edit-race-date" type="date" />
-                        </div>
-
-                        <div class="pt-field">
-                            <label class="pt-label" for="pt-edit-goal-pace">目标配速（可选，m:ss /km）</label>
-                            <input class="pt-input" id="pt-edit-goal-pace" inputmode="numeric" placeholder="5:00" />
-                        </div>
-                    </div>
-
-                    <div id="pt-edit-level-wrap" class="pt-levels">
-                        <div class="pt-level-title">跑者水平</div>
-                        <label class="pt-radio"><input type="radio" name="edit-level" value="beginner" />
-                            新手</label>
-                        <label class="pt-radio"><input type="radio" name="edit-level" value="intermediate" />
-                            进阶</label>
-                        <label class="pt-radio"><input type="radio" name="edit-level" value="advanced" />
-                            高阶</label>
-                    </div>
-
-                    <div class="pt-actions pt-actions-center">
-                        <button id="pt-save-settings-btn" class="pt-btn pt-btn-wide" type="button">
-                            保存设置
-                        </button>
-                    </div>
-                </div>
-            </details>
-
-            <div class="pt-divider"></div>
-
-            <div class="pt-header-row">
-                <div>
-                    <h2 class="pt-h2">打卡记录</h2>
-                    <div class="pt-mini">
-                        添加一次打卡配速（或用最近一次跑步计算得到）。系统会根据你的比赛日期自动更新预测。
-                    </div>
-                </div>
-            </div>
-
-            <div class="pt-grid">
-                <div class="pt-field">
-                    <label class="pt-label" for="pt-checkin-date">打卡日期（YYYY-MM-DD） <span class="pt-req">*</span></label>
-                    <input class="pt-input" id="pt-checkin-date" type="date" placeholder="2026-02-05" />
-                </div>
-
-                <div class="pt-field">
-                    <label class="pt-label" for="pt-pace">当前可持续配速（m:ss /km） <span class="pt-req">*</span></label>
-                    <input class="pt-input" id="pt-pace" inputmode="numeric" placeholder="5:20" />
-                </div>
-            </div>
-
-            <div class="pt-divider"></div>
-
-            <div class="pt-h3">或者：用最近一次跑步计算配速</div>
-
-            <div class="pt-grid">
-                <div class="pt-field">
-                    <label class="pt-label" for="pt-dist-km">距离（km）</label>
-                    <input class="pt-input" id="pt-dist-km" inputmode="decimal" placeholder="10" />
-                </div>
-
-                <div class="pt-field">
-                    <label class="pt-label">用时（h:m:s）</label>
-                    <div class="pt-time">
-                        <input class="pt-input pt-time-input" id="pt-h" inputmode="numeric" placeholder="0" />
-                        <span class="pt-time-sep">:</span>
-                        <input class="pt-input pt-time-input" id="pt-m" inputmode="numeric" placeholder="45" />
-                        <span class="pt-time-sep">:</span>
-                        <input class="pt-input pt-time-input" id="pt-s" inputmode="numeric" placeholder="00" />
-                    </div>
-                </div>
-            </div>
-
-            <div class="pt-actions">
-                <button id="pt-calc-pace-btn" class="pt-btn pt-btn-ghost" type="button">计算配速</button>
-                <button id="pt-add-btn" class="pt-btn" type="button">添加打卡</button>
-            </div>
-
-            <div class="pt-divider"></div>
-
-            <details class="pt-explain">
-                <summary class="pt-explain-summary">如何阅读图表（可选）</summary>
-                <div class="pt-explain-body">
-                    <p>
-                        每个黑点代表一次打卡——你在该日期的「当前可持续配速」。
-                        细黑线只是把这些打卡点连接起来，用于展示整体变化趋势，
-                        而不是表示每天的真实波动。
-                    </p>
-            
-                    <p>
-                        在你<strong>最近一次</strong>打卡之后，工具会从该点开始，
-                        生成两条通向比赛日的预测路径：
-                        <strong>橙色</strong>表示较为保守（低端）的提升路径，
-                        <strong>绿色</strong>表示相对乐观（高端）的提升路径。
-                    </p>
-            
-                    <p>
-                        <strong>重要：</strong>这些预测<strong>不是直线</strong，也不会无限提升。 本工具使用的是<strong>边际收益递减模型</strong>，并结合
-                        <strong>平滑的最大提升约束</strong>，来模拟真实训练中的适应过程：
-                    </p>
-            
-                    <p>
-                        • 新手跑者：每 8 周参考提升约 <strong>4–6%</strong>，长期总提升通常不超过 <strong>~14%</strong><br />
-                        • 进阶跑者：每 8 周参考提升约 <strong>3–4%</strong>，长期总提升通常不超过 <strong>~10%</strong><br />
-                        • 高阶跑者：每 8 周参考提升约 <strong>2%</strong>，长期总提升通常不超过 <strong>~6%</strong>
-                    </p>
-            
-                    <p>
-                        模型特点是：<strong>早期提升更明显，后期逐渐放缓</strong>，
-                        提升不会突然“卡死”，也不会无限逼近不现实的配速，
-                        而是以平滑方式逐步接近生理可达范围。
-                    </p>
-            
-                    <p>
-                        如何使用这张图：
-                        如果橙线和绿线长期明显高于你的目标线，
-                        说明当前阶段下该目标可能偏激进；
-                        如果随着打卡次数增加，两条预测线逐渐靠近——甚至穿过目标线，
-                        说明你的训练趋势正在向目标靠拢。
-                    </p>
-            
-                    <p>
-                        请记住：最有价值的信号来自<strong>持续、重复的打卡趋势</strong>，
-                        而不是任何单一次跑步或某一个时间点的结果。
-                    </p>
-                </div>
-            </details>
-
-
-        </div>
-        <!-- END pt-checkin -->
-
-        <!-- =========================
-             Chart card (hide until started via JS)
-        ========================== -->
-        <div id="pt-chart-card" class="pt-card" style="display:none;">
-            <div class="pt-chart-wrap">
-                <canvas id="pt-chart" class="pt-canvas"></canvas>
-            </div>
-        </div>
-
-        <!-- =========================
-             Data/History card (hide until started via JS)
-        ========================== -->
-        <div id="pt-data-card" class="pt-card" style="display:none;">
-            <details class="pt-details">
-                <summary class="pt-summary">
-                    <span>数据（历史记录 & 访客重置）</span>
-                    <span class="pt-summary-hint">可选</span>
-                </summary>
-
-                <div class="pt-details-body">
-                    <h3 class="pt-h3">历史记录</h3>
-                    <div id="pt-list" class="pt-list"></div>
-
-                    <div class="pt-footer-actions">
-                        <button id="pt-clear-btn" class="pt-btn pt-btn-danger pt-btn-wide" type="button">
-                            清空全部（访客数据）
-                        </button>
-                    </div>
-
-                    <div class="pt-note">
-                        访客模式会将数据保存在你的浏览器中。未来接入 WordPress 账号后，打卡将绑定到你的用户账号。
-                    </div>
-                </div>
-            </details>
-
-            <div class="pt-note">
-                访客模式会将数据保存在你的浏览器中。未来接入 WordPress 账号后，打卡将绑定到你的用户账号。
-            </div>
-        </div>
-
+      <div class="pt-field">
+        <label class="pt-label" for="pt-goal-pace">目标配速（可选，m:ss /km）</label>
+        <input class="pt-input" id="pt-goal-pace" inputmode="numeric" placeholder="5:00" />
+      </div>
     </div>
+
+    <div id="pt-level-wrap" class="pt-levels">
+      <div class="pt-level-title">跑者水平</div>
+      <label class="pt-radio"><input type="radio" name="level" value="beginner" checked /> 新手</label>
+      <label class="pt-radio"><input type="radio" name="level" value="intermediate" /> 进阶</label>
+      <label class="pt-radio"><input type="radio" name="level" value="advanced" /> 高阶</label>
+    </div>
+
+    <button id="pt-start-btn" class="pt-btn" type="button">开始趋势线</button>
+
+    <div class="pt-note">
+      使用与 Module 3 相同的「每 8 周训练周期」提升模型，生成保守 / 典型 / 乐观的比赛日预测区间。
+    </div>
+  </div>
+
+  <!-- =========================
+       Check-ins (Unlocked after setup)
+  ========================== -->
+  <div id="pt-checkin" class="pt-card" style="display:none;">
+
+    <details class="pt-details">
+      <summary class="pt-summary">
+        <span>比赛设置</span>
+        <span class="pt-summary-hint">可选</span>
+      </summary>
+
+      <div class="pt-details-body">
+        <div class="pt-grid">
+          <div class="pt-field">
+            <label class="pt-label" for="pt-edit-race-date">比赛日期</label>
+            <input class="pt-input" id="pt-edit-race-date" type="date" />
+          </div>
+
+          <div class="pt-field">
+            <label class="pt-label" for="pt-edit-goal-pace">目标配速（可选，m:ss /km）</label>
+            <input class="pt-input" id="pt-edit-goal-pace" inputmode="numeric" placeholder="5:00" />
+          </div>
+        </div>
+
+        <div id="pt-edit-level-wrap" class="pt-levels">
+          <div class="pt-level-title">跑者水平</div>
+          <label class="pt-radio"><input type="radio" name="edit-level" value="beginner" /> 新手</label>
+          <label class="pt-radio"><input type="radio" name="edit-level" value="intermediate" /> 进阶</label>
+          <label class="pt-radio"><input type="radio" name="edit-level" value="advanced" /> 高阶</label>
+        </div>
+
+        <div class="pt-actions pt-actions-center">
+          <button id="pt-save-settings-btn" class="pt-btn pt-btn-wide" type="button">
+            保存设置
+          </button>
+        </div>
+      </div>
+    </details>
+
+    <div class="pt-divider"></div>
+
+    <div class="pt-header-row">
+      <div>
+        <h2 class="pt-h2">打卡记录</h2>
+        <div class="pt-mini">
+          添加一次打卡配速（或用最近一次跑步计算得到）。系统会根据你的比赛日期自动更新预测。
+        </div>
+      </div>
+    </div>
+
+    <div class="pt-grid">
+      <div class="pt-field">
+        <label class="pt-label" for="pt-checkin-date">打卡日期（YYYY-MM-DD） <span class="pt-req">*</span></label>
+        <input class="pt-input" id="pt-checkin-date" type="date" placeholder="2026-02-05" />
+      </div>
+
+      <div class="pt-field">
+        <label class="pt-label" for="pt-pace">当前可持续配速（m:ss /km） <span class="pt-req">*</span></label>
+        <input class="pt-input" id="pt-pace" inputmode="numeric" placeholder="5:20" />
+      </div>
+    </div>
+
+    <div class="pt-divider"></div>
+
+    <div class="pt-h3">或者：用最近一次跑步计算配速</div>
+
+    <div class="pt-grid">
+      <div class="pt-field">
+        <label class="pt-label" for="pt-dist-km">距离（km）</label>
+        <input class="pt-input" id="pt-dist-km" inputmode="decimal" placeholder="10" />
+      </div>
+
+      <div class="pt-field">
+        <label class="pt-label">用时（h:m:s）</label>
+        <div class="pt-time">
+          <input class="pt-input pt-time-input" id="pt-h" inputmode="numeric" placeholder="0" />
+          <span class="pt-time-sep">:</span>
+          <input class="pt-input pt-time-input" id="pt-m" inputmode="numeric" placeholder="45" />
+          <span class="pt-time-sep">:</span>
+          <input class="pt-input pt-time-input" id="pt-s" inputmode="numeric" placeholder="00" />
+        </div>
+      </div>
+    </div>
+
+    <div class="pt-actions">
+      <button id="pt-calc-pace-btn" class="pt-btn pt-btn-ghost" type="button">计算配速</button>
+      <button id="pt-add-btn" class="pt-btn" type="button">添加打卡</button>
+    </div>
+
+    <div class="pt-divider"></div>
+
+    <details class="pt-explain">
+      <summary class="pt-explain-summary">如何阅读图表（可选）</summary>
+      <div class="pt-explain-body">
+        <p>
+          每个黑点代表一次打卡——你在该日期的「当前可持续配速」。
+          细黑线只是把这些打卡点连接起来，用于展示整体变化趋势，
+          而不是表示每天的真实波动。
+        </p>
+
+        <p>
+          在你<strong>最近一次</strong>打卡之后，工具会从该点开始，
+          生成两条通向比赛日的预测路径：
+          <strong>橙色</strong>表示较为保守（低端）的提升路径，
+          <strong>绿色</strong>表示相对乐观（高端）的提升路径。
+        </p>
+
+        <p>
+          <strong>重要：</strong>这些预测<strong>不是直线</strong>，也不会无限提升。本工具使用的是<strong>边际收益递减模型</strong>，并结合
+          <strong>平滑的最大提升约束</strong>，来模拟真实训练中的适应过程：
+        </p>
+
+        <p>
+          • 新手跑者：每 8 周参考提升约 <strong>4–6%</strong>，长期总提升通常不超过 <strong>~14%</strong><br />
+          • 进阶跑者：每 8 周参考提升约 <strong>3–4%</strong>，长期总提升通常不超过 <strong>~10%</strong><br />
+          • 高阶跑者：每 8 周参考提升约 <strong>2%</strong>，长期总提升通常不超过 <strong>~6%</strong>
+        </p>
+
+        <p>
+          模型特点是：<strong>早期提升更明显，后期逐渐放缓</strong>，
+          提升不会突然“卡死”，也不会无限逼近不现实的配速，
+          而是以平滑方式逐步接近生理可达范围。
+        </p>
+
+        <p>
+          如何使用这张图：
+          如果橙线和绿线长期明显高于你的目标线，
+          说明当前阶段下该目标可能偏激进；
+          如果随着打卡次数增加，两条预测线逐渐靠近——甚至穿过目标线，
+          说明你的训练趋势正在向目标靠拢。
+        </p>
+
+        <p>
+          请记住：最有价值的信号来自<strong>持续、重复的打卡趋势</strong>，
+          而不是任何单一次跑步或某一个时间点的结果。
+        </p>
+      </div>
+    </details>
+
+  </div>
+  <!-- END pt-checkin -->
+
+  <!-- =========================
+       Chart card (hide until started via JS)
+  ========================== -->
+  <div id="pt-chart-card" class="pt-card" style="display:none;">
+    <div class="pt-chart-wrap">
+      <canvas id="pt-chart" class="pt-canvas"></canvas>
+    </div>
+  </div>
+
+  <!-- =========================
+       Data/History card (hide until started via JS)
+  ========================== -->
+  <div id="pt-data-card" class="pt-card" style="display:none;">
+    <details class="pt-details">
+      <summary class="pt-summary">
+        <span>数据（历史记录 & 访客重置）</span>
+        <span class="pt-summary-hint">可选</span>
+      </summary>
+
+      <div class="pt-details-body">
+        <h3 class="pt-h3">历史记录</h3>
+        <div id="pt-list" class="pt-list"></div>
+
+        <div class="pt-footer-actions">
+          <button id="pt-clear-btn" class="pt-btn pt-btn-danger pt-btn-wide" type="button">
+            清空全部（访客数据）
+          </button>
+        </div>
+
+        <div class="pt-note">
+          访客模式会将数据保存在你的浏览器中。未来接入 WordPress 账号后，打卡将绑定到你的用户账号。
+        </div>
+      </div>
+    </details>
+
+    <div class="pt-note">
+      访客模式会将数据保存在你的浏览器中。未来接入 WordPress 账号后，打卡将绑定到你的用户账号。
+    </div>
+  </div>
+
+</div>
 
     <script type="module" src="./app.js"></script>
 </body>
