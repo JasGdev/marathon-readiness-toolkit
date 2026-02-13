@@ -43,11 +43,13 @@ function mrt_enqueue_module_assets($slug, $handle_prefix, $is_module_script = fa
     );
 
     if ($is_module_script) {
-        add_filter('script_loader_tag', function ($tag, $handle, $src) use ($script_handle) {
-            if ($handle !== $script_handle) return $tag;
-            return '<script type="module" src="' . esc_url($src) . '"></script>';
-        }, 10, 3);
-    }
+    add_filter('script_loader_tag', function ($tag, $handle, $src) use ($script_handle) {
+        if ($handle !== $script_handle) return $tag;
+
+        // keep any existing attributes WP may add, but force type=module
+        return '<script type="module" src="' . esc_url($src) . '"></script>';
+    }, 10, 3);
+}
 
     return $script_handle; // so caller can add inline config if needed
 }
@@ -87,19 +89,22 @@ add_shortcode('timeline_check', function () {
 ====================================================== */
 
 add_shortcode('progress_trendline', function () {
-    $handle = mrt_enqueue_module_assets('progress-trendline', 'pt', true);
-
-    // Provide REST + nonce + login status
-    $inline =
-        'window.MRT = window.MRT || {};' .
-        'window.MRT.restUrl = "' . esc_url_raw(rest_url()) . '";' .
-        'window.MRT.nonce = "' . wp_create_nonce('wp_rest') . '";' .
-        'window.MRT.isLoggedIn = ' . (is_user_logged_in() ? 'true' : 'false') . ';';
-
-    wp_add_inline_script($handle, $inline, 'before');
+    // enqueue assets (module script)
+    mrt_enqueue_module_assets('progress-trendline', 'pt', true);
 
     ob_start();
-    include mrt_plugin_path('modules/progress-trendline/index.html');
+
+    // ✅ print config right here in the page HTML (guaranteed to exist)
+    ?>
+    <script>
+      window.MRT = window.MRT || {};
+      window.MRT.restUrl = "<?php echo esc_url_raw(rest_url()); ?>";
+      window.MRT.nonce = "<?php echo esc_js(wp_create_nonce('wp_rest')); ?>";
+      window.MRT.isLoggedIn = <?php echo is_user_logged_in() ? 'true' : 'false'; ?>;
+    </script>
+    <?php
+
+    include mrt_plugin_path('modules/progress-trendline/index.wp.html');
     return ob_get_clean();
 });
 
@@ -120,13 +125,12 @@ function mrt_pt_can_access_get() {
 function mrt_pt_can_access_post(WP_REST_Request $req) {
     if (!is_user_logged_in()) return false;
 
-    // Require nonce header for cookie-auth POST
-    $nonce = $req->get_header('x_wp_nonce');
-    if (!$nonce) return false;
+    $nonce = $req->get_header('x-wp-nonce');
+    if (!$nonce) $nonce = $req->get_header('X-WP-Nonce');
+    if (!$nonce) $nonce = $req->get_header('x_wp_nonce');
 
-    return wp_verify_nonce($nonce, 'wp_rest');
+    return $nonce && wp_verify_nonce($nonce, 'wp_rest');
 }
-
 add_action('rest_api_init', function () {
     register_rest_route('mrt/v1', '/progress-trendline', [
         [

@@ -642,3 +642,15 @@
     background-color: var(--pt-input-bg, #fff);
     color: inherit;
 }
+
+.pt-warn{
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(245, 158, 11, .35);
+  background: rgba(245, 158, 11, .10);
+  color: #92400e;
+  font-size: 14px;
+  line-height: 1.6;
+  grid-column: 1/3;
+}

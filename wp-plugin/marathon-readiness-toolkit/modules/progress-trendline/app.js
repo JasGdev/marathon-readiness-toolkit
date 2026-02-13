@@ -84,6 +84,9 @@ const $ = (id) => root?.querySelector(`#pt-${id}`);
 const chartCardEl = $("chart-card"); // <div id="pt-chart-card">
 const dataCardEl = $("data-card"); // <div id="pt-data-card">
 
+// Warning msg
+const dateWarnEl = root?.querySelector("#pt-date-warn");
+
 // Setup panel
 const setupBox = $("setup");
 const raceDateEl = $("race-date");
@@ -203,7 +206,7 @@ function setMode(isStarted) {
 }
 
 // ===========================
-// Cloud hydration / merge
+// Cloud hydration / merge     
 // ===========================
 async function hydrateFromCloudIfNeeded() {
   if (!IS_LOGGED_IN) return;
@@ -224,10 +227,16 @@ async function hydrateFromCloudIfNeeded() {
     (!serverState.checkins || serverState.checkins.length === 0);
 
   if (serverEmpty && !localEmpty) {
-    // Server has nothing; push local up
-    saveState(); // triggers debounced cloud save
-    return;
-  }
+  // Server empty, local has data -> push immediately
+  state.updatedAt = Date.now();
+  localStorage.setItem(LS_KEY, JSON.stringify(state));
+  await postServerPayload({
+    version: 1,
+    state: { config: state.config, checkins: state.checkins },
+    updatedAt: state.updatedAt,
+  });
+  return;
+}
 
   if (!serverEmpty && localEmpty) {
     // Local empty; take server
@@ -343,6 +352,17 @@ function showError(msg) {
   errorEl.style.display = "block";
 }
 
+function showDateWarn(msg) {
+  if (!dateWarnEl) return;
+  dateWarnEl.textContent = msg;
+  dateWarnEl.style.display = "block";
+}
+function clearDateWarn() {
+  if (!dateWarnEl) return;
+  dateWarnEl.textContent = "";
+  dateWarnEl.style.display = "none";
+}
+
 function calcPaceFromRun(distKm, hh, mm, ss) {
   if (!(distKm > 0)) return null;
   const total = hh * 3600 + mm * 60 + ss;
@@ -350,6 +370,20 @@ function calcPaceFromRun(distKm, hh, mm, ss) {
   return Math.round(total / distKm);
 }
 
+checkinDateEl?.addEventListener("input", () => {
+  clearDateWarn();
+  if (!state.config) return;
+
+  const date = checkinDateEl.value?.trim() ?? "";
+  const checkinMs = parseDateToMs(date);
+  const raceMs = parseDateToMs(state.config.raceDate);
+
+  if (!date || !checkinMs || !raceMs) return;
+
+  if (checkinMs > raceMs) {
+    showDateWarn("⚠️ 这个日期在比赛日之后：趋势线只接受比赛日当天及之前的打卡。请改成比赛日前的日期。");
+  }
+});
 // ===========================
 // Sync setting fields
 // ===========================
@@ -1038,6 +1072,7 @@ calcPaceBtn?.addEventListener("click", () => {
 // ===========================
 addBtn?.addEventListener("click", () => {
   clearError();
+  clearDateWarn();
 
   if (!state.config) {
     showError("请先设置比赛日期并开始趋势线。");
@@ -1053,6 +1088,7 @@ addBtn?.addEventListener("click", () => {
 
   const raceMs = parseDateToMs(state.config.raceDate);
   if (raceMs && checkinMs > raceMs) {
+    showDateWarn("⚠️ 打卡日期在比赛日之后，请改成比赛日前或比赛日当天。");
     showError("打卡日期必须早于或等于比赛日期。");
     return;
   }

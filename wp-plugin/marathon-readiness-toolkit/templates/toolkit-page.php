@@ -313,26 +313,16 @@
         </div>
       </section>
 
-      <!-- ✅ Step 4 -->
-      <section class="mrt-step">
-        <button class="mrt-stepBtn" type="button" aria-expanded="false" aria-controls="mrt-panel-4" id="mrt-btn-4">
-          <div>
-            <div class="mrt-kicker"><span class="mrt-kickerDot"></span> 第四步｜持续打卡看趋势</div>
-            <h3 class="mrt-stepTitle">我的比赛日预测区间，是否在变好？</h3>
-            <p class="mrt-stepDesc">设置比赛日期后持续添加打卡，观察保守 / 乐观预测线如何随时间变化。</p>
-          </div>
-          <div class="mrt-chevron" aria-hidden="true">⌄</div>
-        </button>
+      <div class="mrt-callout" style="margin-top:14px;">
+  <strong>下一步（建议）：</strong>
+  用「进度趋势线」把你的打卡表现画出来，看看预测区间是不是在向目标靠近（可跨设备同步到账号）。
+  <div style="margin-top:10px;">
+    <a href="<?php echo esc_url( site_url('/progress-trendline/') ); ?>" style="display:inline-block;padding:10px 14px;border-radius:12px;background:#2563eb;color:#fff;font-weight:700;text-decoration:none;">
+      去使用进度趋势线 →
+    </a>
+  </div>
+</div>
 
-        <div class="mrt-panel" id="mrt-panel-4" hidden>
-          <div class="mrt-panelInner">
-            <div class="mrt-moduleSlot">
-              <?php echo do_shortcode('[progress_trendline]'); ?>
-            </div>
-            <p class="mrt-helper">提示：趋势线更适合“持续观察”，不要用单次跑步结果下判断。</p>
-          </div>
-        </div>
-      </section>
 
     </div>
 
