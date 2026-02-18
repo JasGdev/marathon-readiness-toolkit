@@ -1,25 +1,21 @@
-/* pt/styles.css (or whatever your module CSS file is called)
+/* pt/styles.css
    =====================================================
    Progress Trendline – Scoped Styles (FIXED)
-   Fixes:
-   1) Theme/optimizer “kills transitions/animations” → re-enable INSIDE #pt-root
-   2) Remove CSS-vs-JS details animation conflict → CSS-only details animation (reliable)
-   3) Button micro-interactions forced with !important
 ===================================================== */
 
-/* ✅ Re-enable motion inside this module ONLY (protect against WP theme rules like * {transition:none !important}) */
+/* ✅ Re-enable motion inside this module ONLY */
 #pt-root,
-#pt-root * ,
+#pt-root *,
 #pt-root *::before,
 #pt-root *::after {
   animation: initial !important;
   transition: initial !important;
 }
 
-/* Optional: keep reduced motion respectful (users with OS setting) */
+/* Optional: respect reduced motion */
 @media (prefers-reduced-motion: reduce) {
   #pt-root,
-  #pt-root * ,
+  #pt-root *,
   #pt-root *::before,
   #pt-root *::after {
     animation-duration: 0.001ms !important;
@@ -71,12 +67,12 @@
   margin-bottom: 20px;
 }
 
-/* Mobile full-bleed look (optional) */
+/* ✅ Mobile cards KEEP rounded corners (do NOT set radius to 0) */
 @media (max-width: 520px) {
   #pt-root .pt-card {
     margin-left: 0;
     margin-right: 0;
-    border-radius: 0;
+    border-radius: 16px;
     padding: 12px;
   }
 }
@@ -172,7 +168,6 @@
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
-/* Make date input inherit font */
 #pt-root .pt-input[type="date"] {
   font-family: inherit;
   font-size: inherit;
@@ -200,7 +195,6 @@
   color: #6b7280;
 }
 
-/* Mobile-first: time inputs become a stable grid */
 @media (max-width: 520px) {
   #pt-root .pt-time {
     display: grid;
@@ -239,7 +233,6 @@
   white-space: nowrap;
 }
 
-/* Mobile: make pace group grid-stable like pt-time */
 @media (max-width: 520px) {
   #pt-root .pt-pace,
   #pt-root .pt-pace-group {
@@ -254,7 +247,6 @@
   }
 }
 
-/* Very small devices */
 @media (max-width: 360px) {
   #pt-root .pt-title {
     font-size: 20px;
@@ -302,7 +294,6 @@
   background: #2563eb;
   color: #ffffff;
 
-  /* ✅ force transitions to survive theme overrides */
   transition: transform 120ms ease, box-shadow 160ms ease,
     background-color 160ms ease, opacity 160ms ease !important;
   will-change: transform;
@@ -368,13 +359,18 @@
 #pt-root .pt-chart-wrap {
   width: 100%;
   margin: 14px 0 8px;
+
+  /* ✅ clipping is done here (stable) */
+  border-radius: 12px;
+  overflow: hidden;
 }
 
+/* canvas should fill and let wrapper handle rounding */
 #pt-root .pt-canvas {
   width: 100%;
-  height: 280px; /* mobile default */
+  height: 280px;
   display: block;
-  border-radius: 12px;
+  border-radius: 0; /* important: avoid double rounding artifacts */
   background: #ffffff;
 }
 
@@ -390,6 +386,15 @@
   }
 }
 
+/* ✅ Mobile chart: full width INSIDE card (remove extra chart margin only) */
+@media (max-width: 520px) {
+  #pt-root #pt-chart-card .pt-chart-wrap {
+    margin: 0 !important;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+}
+
 /* ---------- List / history ---------- */
 #pt-root .pt-list {
   display: flex;
@@ -397,7 +402,6 @@
   gap: 10px;
 }
 
-/* Mobile: wrap instead of squeezing */
 #pt-root .pt-row {
   display: grid;
   grid-template-columns: 1fr;
@@ -413,7 +417,6 @@
   font-weight: 500;
 }
 
-/* history pace TEXT */
 #pt-root .pt-row .pt-pace {
   color: #111827;
 }
@@ -532,21 +535,11 @@
   gap: 12px;
   font-weight: 700;
   color: #111827;
-
   transition: background-color 180ms ease !important;
 }
 
 #pt-root .pt-summary::-webkit-details-marker {
   display: none;
-}
-
-#pt-root .pt-summary-hint {
-  font-weight: 600;
-  font-size: 12px;
-  color: #6b7280;
-  padding: 3px 8px;
-  border-radius: 999px;
-  background: rgba(229, 231, 235, 0.7);
 }
 
 #pt-root .pt-details[open] .pt-summary {
@@ -593,85 +586,71 @@
     min-width: unset;
   }
 }
+
 /* =====================================================
-   DETAILS / EXPLAIN — CSS-only open/close animation (NO JS)
-   Works with your updated HTML:
-   .pt-details-body/.pt-explain-body -> .pt-collapse -> .pt-collapse-inner
+   DETAILS / EXPLAIN — CSS-only open/close animation
+   (works with .pt-collapse wrappers)
 ===================================================== */
 
-/* Keep overflow clipped */
 #pt-root details.pt-details,
 #pt-root details.pt-explain {
   overflow: hidden;
 }
 
-/* Hide native marker */
 #pt-root .pt-summary::-webkit-details-marker,
 #pt-root .pt-explain-summary::-webkit-details-marker {
   display: none;
 }
 
-/* Ensure bodies exist so close can animate (Safari/Chrome quirks) */
 #pt-root details.pt-details:not([open]) > .pt-details-body,
 #pt-root details.pt-explain:not([open]) > .pt-explain-body {
   display: block;
 }
 
-/* Body itself should NOT be the collapsing element now */
 #pt-root .pt-details-body,
 #pt-root .pt-explain-body {
   padding-top: 0 !important;
   padding-bottom: 0 !important;
 }
 
-/* Collapsing wrapper (closed) */
 #pt-root .pt-details-body > .pt-collapse,
 #pt-root .pt-explain-body > .pt-collapse {
   display: grid;
   grid-template-rows: 0fr;
   overflow: hidden;
-
   opacity: 0;
   transform: translateY(-4px);
-
   transition:
     grid-template-rows 260ms cubic-bezier(.4,0,.2,1),
     opacity 180ms ease,
     transform 220ms ease;
 }
 
-/* Inner wrapper needed for 0fr collapse */
 #pt-root .pt-collapse > .pt-collapse-inner {
   overflow: hidden;
 }
 
-/* Open state */
 #pt-root details[open].pt-details > .pt-details-body > .pt-collapse,
 #pt-root details[open].pt-explain > .pt-explain-body > .pt-collapse {
   grid-template-rows: 1fr;
-
   opacity: 1;
   transform: translateY(0);
-
   transition:
     grid-template-rows 220ms cubic-bezier(.2,.8,.2,1),
     opacity 140ms ease-out,
     transform 160ms ease-out;
 }
 
-/* Add padding only when open (stable + no jump) */
 #pt-root details[open].pt-details > .pt-details-body,
 #pt-root details[open].pt-explain > .pt-explain-body {
   padding-top: 14px !important;
   padding-bottom: 14px !important;
 }
 
-/* Hover */
 #pt-root .pt-summary:hover {
   background: rgba(243, 244, 246, 0.6);
 }
 
-/* Chevron */
 #pt-root .pt-summary::after {
   content: "";
   width: 10px;
@@ -688,7 +667,6 @@
   transform: rotate(-135deg);
 }
 
-/* Explain summary chevron */
 #pt-root .pt-explain-summary {
   position: relative;
   cursor: pointer;
@@ -720,25 +698,78 @@
   transform: translateY(-50%) rotate(-135deg);
 }
 
-/* MOBILE: make the CHART full width (no inner padding/margins) */
+/* =====================================================
+   SECTION SEPARATION / CONTRAST (ADD-ON)
+===================================================== */
+
+#pt-root.pt-wrap {
+  background: #f3f4f6;
+  border-radius: 18px;
+  padding: 14px;
+}
+
 @media (max-width: 520px) {
-  /* remove the card padding just for the chart card */
-  #pt-root #pt-chart-card.pt-card {
+  #pt-root.pt-wrap {
+    border-radius: 0;
     padding: 0 !important;
-    border-radius: 0 !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
+    background: transparent;
   }
+}
 
-  /* remove wrapper margin around the canvas */
-  #pt-root #pt-chart-card .pt-chart-wrap {
-    margin: 0 !important;
-  }
+#pt-root .pt-card {
+  border: 1px solid rgba(17, 24, 39, 0.10);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.08);
+  margin-bottom: 16px;
+}
 
-  /* canvas should touch edges */
-  #pt-root #pt-chart-card .pt-canvas {
-    border-radius: 0 !important;
-    width: 100% !important;
-    display: block;
-  }
+#pt-root .pt-header-row {
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(37, 99, 235, 0.08), rgba(37, 99, 235, 0.03));
+  border: 1px solid rgba(37, 99, 235, 0.12);
+  margin-bottom: 12px;
+}
+
+#pt-root .pt-divider {
+  background: rgba(17, 24, 39, 0.10);
+  height: 1px;
+  margin: 18px 0;
+}
+
+#pt-root .pt-details {
+  border: 1px solid rgba(17, 24, 39, 0.14);
+  background: rgba(249, 250, 251, 0.9);
+}
+
+#pt-root .pt-summary {
+  background: rgba(255, 255, 255, 0.85);
+}
+
+#pt-root .pt-details[open] .pt-summary {
+  background: rgba(37, 99, 235, 0.08);
+  border-bottom: 1px solid rgba(17, 24, 39, 0.10);
+}
+
+#pt-root .pt-explain {
+  border: 1px solid rgba(17, 24, 39, 0.10);
+  background: rgba(243, 244, 246, 0.8);
+}
+
+#pt-root .pt-input {
+  border-color: rgba(17, 24, 39, 0.18);
+}
+
+#pt-root .pt-input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+}
+
+#pt-root .pt-row {
+  border: 1px solid rgba(17, 24, 39, 0.08);
+  background: #ffffff;
+}
+
+#pt-root .pt-footer-actions {
+  padding-top: 10px;
+  border-top: 1px dashed rgba(220, 38, 38, 0.25);
 }

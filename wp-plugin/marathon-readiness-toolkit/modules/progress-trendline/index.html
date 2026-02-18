@@ -8,8 +8,6 @@
 	</head>
 
 	<body>
-		<!-- modules/progress-trendline/index.html (WP partial) -->
-
 		<div id="pt-root" class="pt-wrap">
 			<!-- =========================
        Setup (Start Trendline)
@@ -74,8 +72,8 @@
 			</div>
 
 			<!-- =========================
-       Check-ins (Add record first, settings later)
-  ========================== -->
+     Add record card
+========================== -->
 			<div id="pt-checkin" class="pt-card" style="display: none">
 				<div class="pt-header-row">
 					<div>
@@ -179,9 +177,13 @@
 						</div>
 					</div>
 				</details>
+			</div>
+			<!-- END #pt-checkin -->
 
-				<div class="pt-divider"></div>
-
+			<!-- =========================
+     Race settings (COLLAPSIBLE like delete/history)
+========================== -->
+			<div id="pt-settings-card" class="pt-card" style="display: none">
 				<details class="pt-details" data-pt-accordion>
 					<summary class="pt-summary">
 						<span>比赛设置</span>
@@ -190,6 +192,12 @@
 					<div class="pt-details-body">
 						<div class="pt-collapse">
 							<div class="pt-collapse-inner">
+								<div class="pt-header-row" style="margin-bottom: 8px">
+									<div>
+										<div class="pt-mini">修改比赛日期 / 目标配速 / 跑者水平。保存后会影响预测。</div>
+									</div>
+								</div>
+
 								<div class="pt-grid">
 									<div class="pt-field">
 										<label class="pt-label" for="pt-edit-race-date">比赛日期</label>
@@ -237,7 +245,7 @@
 					</div>
 				</details>
 			</div>
-			<!-- END pt-checkin -->
+			<!-- END #pt-settings-card -->
 
 			<!-- =========================
        Data/History card (delete last)

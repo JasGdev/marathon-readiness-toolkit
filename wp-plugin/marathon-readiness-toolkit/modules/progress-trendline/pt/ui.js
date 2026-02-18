@@ -26,10 +26,15 @@ export function applyPrimaryActionLayout(dom) {
 }
 
 export function setMode(dom, isStarted) {
-	const { setupBox, checkinBox, chartCardEl, dataCardEl } = dom;
+	// ✅ add settingsCardEl
+	const { setupBox, checkinBox, chartCardEl, dataCardEl, settingsCardEl } = dom;
+
 	if (setupBox) setupBox.style.display = isStarted ? 'none' : 'block';
 	if (checkinBox) checkinBox.style.display = isStarted ? 'block' : 'none';
+
+	// Cards outside checkin
 	if (chartCardEl) chartCardEl.style.display = isStarted ? 'block' : 'none';
+	if (settingsCardEl) settingsCardEl.style.display = isStarted ? 'block' : 'none'; // ✅ NEW
 	if (dataCardEl) dataCardEl.style.display = isStarted ? 'block' : 'none';
 }
 

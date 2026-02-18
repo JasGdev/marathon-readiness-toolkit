@@ -5,8 +5,9 @@ export function getDom() {
 	const $ = (id) => root?.querySelector(`#pt-${id}`);
 
 	// Extra cards (outside pt-checkin)
-	const chartCardEl = $('chart-card'); // <div id="pt-chart-card">
-	const dataCardEl = $('data-card'); // <div id="pt-data-card">
+	const chartCardEl = $('chart-card');       // <div id="pt-chart-card">
+	const dataCardEl = $('data-card');         // <div id="pt-data-card">
+	const settingsCardEl = $('settings-card'); // <div id="pt-settings-card">
 
 	// Warning msg
 	const dateWarnEl = root?.querySelector('#pt-date-warn');
@@ -40,7 +41,7 @@ export function getDom() {
 	const paceMinEl = root?.querySelector('#pt-pace-min');
 	const paceSecEl = root?.querySelector('#pt-pace-sec');
 
-	// Edit settings (inside check-in screen)
+	// Edit settings (now inside settings card)
 	const editRaceDateEl = $('edit-race-date');
 	const editLevelWrapEl = $('edit-level-wrap');
 	const saveSettingsBtn = $('save-settings-btn');
@@ -57,6 +58,7 @@ export function getDom() {
 		$,
 		chartCardEl,
 		dataCardEl,
+		settingsCardEl,
 		dateWarnEl,
 		setupBox,
 		raceDateEl,
