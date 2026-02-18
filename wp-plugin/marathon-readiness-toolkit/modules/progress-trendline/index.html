@@ -65,69 +65,21 @@
 			</div>
 
 			<!-- =========================
-       Check-ins (Unlocked after setup)
+       Chart card (show on top after setup)
+  ========================== -->
+			<div id="pt-chart-card" class="pt-card" style="display: none">
+				<div class="pt-chart-wrap">
+					<canvas id="pt-chart" class="pt-canvas"></canvas>
+				</div>
+			</div>
+
+			<!-- =========================
+       Check-ins (Add record first, settings later)
   ========================== -->
 			<div id="pt-checkin" class="pt-card" style="display: none">
-				<details class="pt-details" data-pt-accordion>
-					<summary class="pt-summary">
-						<span>比赛设置</span>
-					</summary>
-
-					<div class="pt-details-body">
-						<div class="pt-collapse">
-							<div class="pt-collapse-inner">
-								<div class="pt-grid">
-									<div class="pt-field">
-										<label class="pt-label" for="pt-edit-race-date">比赛日期</label>
-										<input class="pt-input" id="pt-edit-race-date" type="date" />
-									</div>
-
-									<div class="pt-field">
-										<label class="pt-label">目标配速（m:ss /km）</label>
-
-										<div class="pt-pace">
-											<input
-												class="pt-input pt-pace-input"
-												id="pt-edit-goal-min"
-												inputmode="numeric"
-												autocomplete="off"
-												placeholder="0"
-												aria-label="目标配速 分钟"
-											/>
-											<span class="pt-pace-sep">:</span>
-											<input
-												class="pt-input pt-pace-input"
-												id="pt-edit-goal-sec"
-												inputmode="numeric"
-												autocomplete="off"
-												placeholder="00"
-												aria-label="目标配速 秒"
-											/>
-											<span class="pt-pace-unit">/km</span>
-										</div>
-									</div>
-								</div>
-
-								<div id="pt-edit-level-wrap" class="pt-levels">
-									<div class="pt-level-title">跑者水平</div>
-									<label class="pt-radio"><input type="radio" name="edit-level" value="beginner" /> 新手</label>
-									<label class="pt-radio"><input type="radio" name="edit-level" value="intermediate" /> 进阶</label>
-									<label class="pt-radio"><input type="radio" name="edit-level" value="advanced" /> 高阶</label>
-								</div>
-
-								<div class="pt-actions pt-actions-center">
-									<button id="pt-save-settings-btn" class="pt-btn pt-btn-wide" type="button">保存设置</button>
-								</div>
-							</div>
-						</div>
-					</div>
-				</details>
-
-				<div class="pt-divider"></div>
-
 				<div class="pt-header-row">
 					<div>
-						<h2 class="pt-h2">打卡记录</h2>
+						<h2 class="pt-h2">添加打卡</h2>
 						<div class="pt-mini">添加一次打卡配速（或用最近一次跑步计算得到）。系统会根据你的比赛日期自动更新预测。</div>
 					</div>
 				</div>
@@ -210,8 +162,7 @@
 								</p>
 
 								<p>
-									<strong>重要：</strong
-									>这些预测<strong>不是直线</strong>，也不会无限提升。本工具使用<strong>边际收益递减模型</strong>，并结合
+									<strong>重要：</strong>这些预测<strong>不是直线</strong>，也不会无限提升。本工具使用<strong>边际收益递减模型</strong>，并结合
 									<strong>平滑的最大提升约束</strong>来模拟训练适应过程。
 								</p>
 
@@ -228,20 +179,68 @@
 						</div>
 					</div>
 				</details>
+
+				<div class="pt-divider"></div>
+
+				<details class="pt-details" data-pt-accordion>
+					<summary class="pt-summary">
+						<span>比赛设置</span>
+					</summary>
+
+					<div class="pt-details-body">
+						<div class="pt-collapse">
+							<div class="pt-collapse-inner">
+								<div class="pt-grid">
+									<div class="pt-field">
+										<label class="pt-label" for="pt-edit-race-date">比赛日期</label>
+										<input class="pt-input" id="pt-edit-race-date" type="date" />
+									</div>
+
+									<div class="pt-field">
+										<label class="pt-label">目标配速（m:ss /km）</label>
+
+										<div class="pt-pace">
+											<input
+												class="pt-input pt-pace-input"
+												id="pt-edit-goal-min"
+												inputmode="numeric"
+												autocomplete="off"
+												placeholder="0"
+												aria-label="目标配速 分钟"
+											/>
+											<span class="pt-pace-sep">:</span>
+											<input
+												class="pt-input pt-pace-input"
+												id="pt-edit-goal-sec"
+												inputmode="numeric"
+												autocomplete="off"
+												placeholder="00"
+												aria-label="目标配速 秒"
+											/>
+											<span class="pt-pace-unit">/km</span>
+										</div>
+									</div>
+								</div>
+
+								<div id="pt-edit-level-wrap" class="pt-levels">
+									<div class="pt-level-title">跑者水平</div>
+									<label class="pt-radio"><input type="radio" name="edit-level" value="beginner" /> 新手</label>
+									<label class="pt-radio"><input type="radio" name="edit-level" value="intermediate" /> 进阶</label>
+									<label class="pt-radio"><input type="radio" name="edit-level" value="advanced" /> 高阶</label>
+								</div>
+
+								<div class="pt-actions pt-actions-center">
+									<button id="pt-save-settings-btn" class="pt-btn pt-btn-wide" type="button">保存设置</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</details>
 			</div>
 			<!-- END pt-checkin -->
 
 			<!-- =========================
-       Chart card (hide until started via JS)
-  ========================== -->
-			<div id="pt-chart-card" class="pt-card" style="display: none">
-				<div class="pt-chart-wrap">
-					<canvas id="pt-chart" class="pt-canvas"></canvas>
-				</div>
-			</div>
-
-			<!-- =========================
-       Data/History card (hide until started via JS)
+       Data/History card (delete last)
   ========================== -->
 			<div id="pt-data-card" class="pt-card" style="display: none">
 				<details class="pt-details" data-pt-accordion>
@@ -256,16 +255,22 @@
 								<div id="pt-list" class="pt-list"></div>
 
 								<div class="pt-footer-actions">
-									<button id="pt-clear-btn" class="pt-btn pt-btn-danger pt-btn-wide" type="button">清空全部（访客数据）</button>
+									<button id="pt-clear-btn" class="pt-btn pt-btn-danger pt-btn-wide" type="button">
+										清空全部（访客数据）
+									</button>
 								</div>
 
-								<div class="pt-note">访客模式会将数据保存在你的浏览器中。未来接入 WordPress 账号后，打卡将绑定到你的用户账号。</div>
+								<div class="pt-note">
+									访客模式会将数据保存在你的浏览器中。未来接入 WordPress 账号后，打卡将绑定到你的用户账号。
+								</div>
 							</div>
 						</div>
 					</div>
 				</details>
 
-				<div class="pt-note">访客模式会将数据保存在你的浏览器中。未来接入 WordPress 账号后，打卡将绑定到你的用户账号。</div>
+				<div class="pt-note">
+					访客模式会将数据保存在你的浏览器中。未来接入 WordPress 账号后，打卡将绑定到你的用户账号。
+				</div>
 			</div>
 		</div>
 

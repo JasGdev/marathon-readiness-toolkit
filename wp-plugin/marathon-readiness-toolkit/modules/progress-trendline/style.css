@@ -719,3 +719,26 @@
 #pt-root .pt-explain[open] .pt-explain-summary::after {
   transform: translateY(-50%) rotate(-135deg);
 }
+
+/* MOBILE: make the CHART full width (no inner padding/margins) */
+@media (max-width: 520px) {
+  /* remove the card padding just for the chart card */
+  #pt-root #pt-chart-card.pt-card {
+    padding: 0 !important;
+    border-radius: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  /* remove wrapper margin around the canvas */
+  #pt-root #pt-chart-card .pt-chart-wrap {
+    margin: 0 !important;
+  }
+
+  /* canvas should touch edges */
+  #pt-root #pt-chart-card .pt-canvas {
+    border-radius: 0 !important;
+    width: 100% !important;
+    display: block;
+  }
+}

@@ -1,5 +1,10 @@
 // pt/chart.js
-import { paceAfterWeeks, scenarioRates, getBlockDecayByLevel, getMaxTotalImprovementByLevel } from '../growthModel.js';
+import {
+	paceAfterWeeks,
+	scenarioRates,
+	getBlockDecayByLevel,
+	getMaxTotalImprovementByLevel,
+} from '../growthModel.js';
 import { parseDateToMs, weeksBetweenMs, parsePaceToSeconds, formatPace } from './helpers.js';
 import { getState, saveState } from './state.js';
 
@@ -30,7 +35,15 @@ function addWeeksMs(ms, weeks) {
 	return ms + weeks * 7 * 24 * 3600 * 1000;
 }
 
-function buildProjectionSeries({ startMs, startPaceSec, raceMs, rate, decay, maxTotalImprovement, stepWeeks = 1 }) {
+function buildProjectionSeries({
+	startMs,
+	startPaceSec,
+	raceMs,
+	rate,
+	decay,
+	maxTotalImprovement,
+	stepWeeks = 1,
+}) {
 	const totalWeeks = weeksBetweenMs(startMs, raceMs);
 	if (!(totalWeeks > 0)) return [];
 
@@ -62,7 +75,7 @@ function buildProjectionSeries({ startMs, startPaceSec, raceMs, rate, decay, max
 		maxTotalImprovement,
 	});
 
-	if (Number.isFinite(endPace)) {
+	if (Number.isFinite(endPace) && points.length) {
 		points[points.length - 1] = { ms: raceMs, pace: endPace };
 	}
 
@@ -91,8 +104,11 @@ export function renderChart(dom) {
 	const rect = chartEl.getBoundingClientRect();
 	const cssW = Math.max(320, Math.floor(rect.width));
 	const cssH = Math.max(280, Math.floor(rect.height || 320));
-	const dpr = window.devicePixelRatio || 1;
 
+	// ✅ mobile detected early so layout + frame can use it
+	const isMobile = cssW < 520;
+
+	const dpr = window.devicePixelRatio || 1;
 	chartEl.width = Math.floor(cssW * dpr);
 	chartEl.height = Math.floor(cssH * dpr);
 	chartEl.style.width = `${cssW}px`;
@@ -101,10 +117,14 @@ export function renderChart(dom) {
 	ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 	ctx.clearRect(0, 0, cssW, cssH);
 
-	const frame = 10;
-	ctx.lineWidth = 1;
-	ctx.strokeStyle = '#E5E7EB';
-	ctx.strokeRect(frame, frame, cssW - frame * 2, cssH - frame * 2);
+	// ✅ mobile: remove inner frame/border so plot can go full width
+	const frame = isMobile ? 0 : 10;
+
+	if (!isMobile) {
+		ctx.lineWidth = 1;
+		ctx.strokeStyle = '#E5E7EB';
+		ctx.strokeRect(frame, frame, cssW - frame * 2, cssH - frame * 2);
+	}
 
 	if (!state.config) {
 		ctx.fillStyle = '#6B7280';
@@ -182,16 +202,19 @@ export function renderChart(dom) {
 	minY -= yPad;
 	maxY += yPad;
 
-	const isMobile = cssW < 520;
-	const sidePad = isMobile ? 8 : 10;
-	const yLabelGutter = isMobile ? 28 : 34;
-	const monthLabelZone = isMobile ? 62 : 28;
-	const legendZone = isMobile ? 52 : 34;
-	const bottomPad = 10;
+	// ✅ tighter layout on mobile (more plot width)
+	const sidePad = isMobile ? 0 : 10;
+	const yLabelGutter = isMobile ? 22 : 34;
+	const monthLabelZone = isMobile ? 52 : 28;
+
+	// ✅ remove legend on mobile
+	const legendZone = isMobile ? 0 : 34;
+
+	const bottomPad = isMobile ? 6 : 10;
 
 	const left = frame + sidePad + yLabelGutter;
 	const right = cssW - frame - sidePad;
-	const top = frame + 12;
+	const top = frame + (isMobile ? 8 : 12);
 	const bottom = cssH - frame - (monthLabelZone + legendZone + bottomPad);
 
 	const xScale = (ms) => left + ((ms - safeMinX) / (maxX - safeMinX)) * (right - left);
@@ -218,7 +241,8 @@ export function renderChart(dom) {
 		ctx.stroke();
 		ctx.globalAlpha = 1;
 
-		ctx.fillText(formatPace(v), left - 6, y);
+		// ✅ bring labels slightly closer on mobile
+		ctx.fillText(formatPace(v), left - (isMobile ? 4 : 6), y);
 	}
 
 	const monthTicks = getMonthTicks(safeMinX, maxX);
@@ -290,15 +314,16 @@ export function renderChart(dom) {
 	const colorOptimistic = '#10B981';
 	const sampleLen = 24;
 
-	ctx.font = '12px system-ui';
-	ctx.textBaseline = 'middle';
-	ctx.fillStyle = '#374151';
-	ctx.lineWidth = 3;
-
-	const leftText = '保守预估（橙色）';
-	const rightText = '乐观预估（绿色）';
-
+	// ✅ desktop legend only
 	if (!isMobile) {
+		ctx.font = '12px system-ui';
+		ctx.textBaseline = 'middle';
+		ctx.fillStyle = '#374151';
+		ctx.lineWidth = 3;
+
+		const leftText = '保守预估（橙色）';
+		const rightText = '乐观预估（绿色）';
+
 		const legendY = bottom + monthLabelZone + legendZone / 2;
 
 		ctx.save();
@@ -333,49 +358,13 @@ export function renderChart(dom) {
 		ctx.fillText(rightText, startX + sampleLen + 8, legendY);
 
 		ctx.restore();
-	} else {
-		const y1 = bottom + monthLabelZone + 16;
-		const y2 = y1 + 22;
-
-		ctx.save();
-		ctx.font = '12px system-ui';
-		ctx.textBaseline = 'middle';
-		ctx.textAlign = 'left';
-		ctx.fillStyle = '#374151';
-		ctx.lineWidth = 3;
-
-		const gap = 14;
-
-		const leftWText = ctx.measureText(leftText).width;
-		const rightWText = ctx.measureText(rightText).width;
-
-		const row1W = sampleLen + gap + leftWText;
-		const row2W = sampleLen + gap + rightWText;
-
-		const startX1 = Math.max((cssW - row1W) / 2, frame + 8);
-		const startX2 = Math.max((cssW - row2W) / 2, frame + 8);
-
-		ctx.strokeStyle = colorConservative;
-		ctx.beginPath();
-		ctx.moveTo(startX1, y1);
-		ctx.lineTo(startX1 + sampleLen, y1);
-		ctx.stroke();
-		ctx.fillText(leftText, startX1 + sampleLen + gap, y1);
-
-		ctx.strokeStyle = colorOptimistic;
-		ctx.beginPath();
-		ctx.moveTo(startX2, y2);
-		ctx.lineTo(startX2 + sampleLen, y2);
-		ctx.stroke();
-		ctx.fillText(rightText, startX2 + sampleLen + gap, y2);
-
-		ctx.restore();
 	}
 
 	ctx.lineWidth = 2;
 
 	if (!pts.length) return;
 
+	// history line
 	ctx.strokeStyle = '#111827';
 	ctx.globalAlpha = 0.35;
 	ctx.beginPath();
@@ -420,6 +409,7 @@ export function renderChart(dom) {
 		drawPolyline(ctx, optSeries, xScale, yScale);
 	}
 
+	// points
 	const lastIdx = pts.length - 1;
 	pts.forEach((p, i) => {
 		const x = xScale(p.ms);
