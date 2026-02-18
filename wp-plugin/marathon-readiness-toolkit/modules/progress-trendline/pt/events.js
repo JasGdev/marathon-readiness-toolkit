@@ -1,14 +1,25 @@
 // pt/events.js
+// ✅ Removed enhanceDetailsAnimation import + call (CSS-only details animation now)
+
 import { auth, clearLocalOnly, clearServerPayloadNow, getState, saveState } from './state.js';
-import { parseDateToMs, readPaceFromInputs, writePaceToInputs, calcPaceFromRun } from './helpers.js';
+import {
+	parseDateToMs,
+	readPaceFromInputs,
+	writePaceToInputs,
+	calcPaceFromRun,
+	attachSecondAutoFormat,
+} from './helpers.js';
 import { clearError, showError, clearDateWarn, showDateWarn } from './ui.js';
 
 export function bindEvents(dom, { setMode, rerenderAll, getLevel, getEditLevel }) {
 	const state = getState();
 
+	// ✅ auto-format seconds (5 -> 05) on blur
+	attachSecondAutoFormat(dom.paceSecEl);
+	attachSecondAutoFormat(dom.editGoalSecEl);
+
 	// resize layout
 	window.addEventListener('resize', () => {
-		// layout is handled by rerenderAll() calling applyPrimaryActionLayout
 		rerenderAll();
 	});
 
@@ -84,9 +95,7 @@ export function bindEvents(dom, { setMode, rerenderAll, getLevel, getEditLevel }
 			return;
 		}
 
-		const goalPaceSec = readPaceFromInputs(dom.editGoalMinEl, dom.editGoalSecEl, {
-			allowBlank: true,
-		});
+		const goalPaceSec = readPaceFromInputs(dom.editGoalMinEl, dom.editGoalSecEl, { allowBlank: true });
 
 		const goalHasAny =
 			!!String(dom.editGoalMinEl?.value ?? '').trim() || !!String(dom.editGoalSecEl?.value ?? '').trim();
@@ -114,12 +123,10 @@ export function bindEvents(dom, { setMode, rerenderAll, getLevel, getEditLevel }
 			return;
 		}
 
-		const goalSec = readPaceFromInputs(dom.editGoalMinEl, dom.editGoalSecEl, {
-			allowBlank: true,
-		});
+		// ✅ first setup reads from SETUP goal inputs
+		const goalSec = readPaceFromInputs(dom.goalMinEl, dom.goalSecEl, { allowBlank: true });
 
-		const goalHasAny =
-			!!String(dom.editGoalMinEl?.value ?? '').trim() || !!String(dom.editGoalSecEl?.value ?? '').trim();
+		const goalHasAny = !!String(dom.goalMinEl?.value ?? '').trim() || !!String(dom.goalSecEl?.value ?? '').trim();
 
 		if (goalHasAny && goalSec === null) {
 			showError(dom, '目标配速请输入有效的 m:ss（秒数需 0–59）。例如：5:00');
@@ -127,11 +134,7 @@ export function bindEvents(dom, { setMode, rerenderAll, getLevel, getEditLevel }
 		}
 
 		const st = getState();
-		st.config = {
-			raceDate,
-			goalPaceSec: goalSec,
-			level: getLevel(),
-		};
+		st.config = { raceDate, goalPaceSec: goalSec, level: getLevel() };
 
 		saveState();
 		setMode(true);
@@ -188,9 +191,7 @@ export function bindEvents(dom, { setMode, rerenderAll, getLevel, getEditLevel }
 			return;
 		}
 
-		const paceSecPerKm = readPaceFromInputs(dom.paceMinEl, dom.paceSecEl, {
-			allowBlank: false,
-		});
+		const paceSecPerKm = readPaceFromInputs(dom.paceMinEl, dom.paceSecEl, { allowBlank: false });
 
 		const paceHasAny = !!String(dom.paceMinEl?.value ?? '').trim() || !!String(dom.paceSecEl?.value ?? '').trim();
 

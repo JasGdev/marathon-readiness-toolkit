@@ -1,15 +1,38 @@
-/* =====================================================
-   Progress Trendline – Scoped Styles (UPDATED)
-   - Adds pace input group (min + sec) styles
-   - Avoids class conflict with history ".pt-pace" text by using ".pt-pace-group"
-   - Keeps your existing visual system + mobile rules
+/* pt/styles.css (or whatever your module CSS file is called)
+   =====================================================
+   Progress Trendline – Scoped Styles (FIXED)
+   Fixes:
+   1) Theme/optimizer “kills transitions/animations” → re-enable INSIDE #pt-root
+   2) Remove CSS-vs-JS details animation conflict → CSS-only details animation (reliable)
+   3) Button micro-interactions forced with !important
 ===================================================== */
+
+/* ✅ Re-enable motion inside this module ONLY (protect against WP theme rules like * {transition:none !important}) */
+#pt-root,
+#pt-root * ,
+#pt-root *::before,
+#pt-root *::after {
+  animation: initial !important;
+  transition: initial !important;
+}
+
+/* Optional: keep reduced motion respectful (users with OS setting) */
+@media (prefers-reduced-motion: reduce) {
+  #pt-root,
+  #pt-root * ,
+  #pt-root *::before,
+  #pt-root *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
 
 #pt-root {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     Helvetica, Arial, sans-serif;
   color: #111827;
-  /* (optional) keep layout consistent if WP theme applies weird box sizing */
   box-sizing: border-box;
 }
 
@@ -101,7 +124,7 @@
 @media (min-width: 720px) {
   #pt-root.pt-wrap {
     padding: 18px 18px;
-    max-width: 860px; /* keep your earlier "tool readable" max width feel */
+    max-width: 860px;
   }
 
   #pt-root .pt-card {
@@ -191,8 +214,8 @@
   }
 }
 
-/* ---------- Pace input group (m:ss /km) NEW ---------- */
-/* NOTE: do NOT use ".pt-pace" here (it is used in history rows for pace text) */
+/* ---------- Pace input groups (m:ss /km) ---------- */
+#pt-root .pt-pace,
 #pt-root .pt-pace-group {
   display: flex;
   align-items: center;
@@ -218,6 +241,7 @@
 
 /* Mobile: make pace group grid-stable like pt-time */
 @media (max-width: 520px) {
+  #pt-root .pt-pace,
   #pt-root .pt-pace-group {
     display: grid;
     grid-template-columns: 1fr auto 1fr auto;
@@ -277,15 +301,26 @@
   cursor: pointer;
   background: #2563eb;
   color: #ffffff;
+
+  /* ✅ force transitions to survive theme overrides */
+  transition: transform 120ms ease, box-shadow 160ms ease,
+    background-color 160ms ease, opacity 160ms ease !important;
+  will-change: transform;
 }
 
 #pt-root .pt-btn:hover {
   background: #1d4ed8;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.18);
+}
+
+#pt-root .pt-btn:active {
+  transform: scale(0.98);
 }
 
 #pt-root .pt-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 #pt-root .pt-btn-ghost {
@@ -295,6 +330,7 @@
 
 #pt-root .pt-btn-ghost:hover {
   background: #e5e7eb;
+  box-shadow: 0 8px 20px rgba(17, 24, 39, 0.08);
 }
 
 #pt-root .pt-btn-danger {
@@ -303,6 +339,7 @@
 
 #pt-root .pt-btn-danger:hover {
   background: #b91c1c;
+  box-shadow: 0 8px 20px rgba(220, 38, 38, 0.18);
 }
 
 /* ---------- Button rows ---------- */
@@ -338,7 +375,7 @@
   height: 280px; /* mobile default */
   display: block;
   border-radius: 12px;
-  background: #ffffff; /* cleaner contrast for colored lines */
+  background: #ffffff;
 }
 
 @media (min-width: 720px) {
@@ -365,12 +402,10 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 6px;
-  padding: 10px 0;
+  padding: 10px 12px;
   background: #f9fafb;
   border-radius: 10px;
   font-size: 14px;
-  padding-left: 12px;
-  padding-right: 12px;
 }
 
 #pt-root .pt-date {
@@ -378,8 +413,8 @@
   font-weight: 500;
 }
 
-/* This is the pace TEXT in history rows */
-#pt-root .pt-pace {
+/* history pace TEXT */
+#pt-root .pt-row .pt-pace {
   color: #111827;
 }
 
@@ -390,7 +425,7 @@
 }
 
 #pt-root .pt-date,
-#pt-root .pt-pace,
+#pt-root .pt-row .pt-pace,
 #pt-root .pt-proj {
   overflow-wrap: anywhere;
 }
@@ -403,6 +438,7 @@
   cursor: pointer;
   justify-self: start;
   min-height: 40px;
+  padding: 0;
 }
 
 @media (min-width: 720px) {
@@ -441,7 +477,7 @@
   padding: 10px 12px;
   border-radius: 12px;
   border: 1px solid rgba(245, 158, 11, 0.35);
-  background: rgba(245, 158, 11, 0.10);
+  background: rgba(245, 158, 11, 0.1);
   color: #92400e;
   font-size: 14px;
   line-height: 1.6;
@@ -496,6 +532,8 @@
   gap: 12px;
   font-weight: 700;
   color: #111827;
+
+  transition: background-color 180ms ease !important;
 }
 
 #pt-root .pt-summary::-webkit-details-marker {
@@ -554,4 +592,130 @@
     width: 100%;
     min-width: unset;
   }
+}
+/* =====================================================
+   DETAILS / EXPLAIN — CSS-only open/close animation (NO JS)
+   Works with your updated HTML:
+   .pt-details-body/.pt-explain-body -> .pt-collapse -> .pt-collapse-inner
+===================================================== */
+
+/* Keep overflow clipped */
+#pt-root details.pt-details,
+#pt-root details.pt-explain {
+  overflow: hidden;
+}
+
+/* Hide native marker */
+#pt-root .pt-summary::-webkit-details-marker,
+#pt-root .pt-explain-summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Ensure bodies exist so close can animate (Safari/Chrome quirks) */
+#pt-root details.pt-details:not([open]) > .pt-details-body,
+#pt-root details.pt-explain:not([open]) > .pt-explain-body {
+  display: block;
+}
+
+/* Body itself should NOT be the collapsing element now */
+#pt-root .pt-details-body,
+#pt-root .pt-explain-body {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* Collapsing wrapper (closed) */
+#pt-root .pt-details-body > .pt-collapse,
+#pt-root .pt-explain-body > .pt-collapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  overflow: hidden;
+
+  opacity: 0;
+  transform: translateY(-4px);
+
+  transition:
+    grid-template-rows 260ms cubic-bezier(.4,0,.2,1),
+    opacity 180ms ease,
+    transform 220ms ease;
+}
+
+/* Inner wrapper needed for 0fr collapse */
+#pt-root .pt-collapse > .pt-collapse-inner {
+  overflow: hidden;
+}
+
+/* Open state */
+#pt-root details[open].pt-details > .pt-details-body > .pt-collapse,
+#pt-root details[open].pt-explain > .pt-explain-body > .pt-collapse {
+  grid-template-rows: 1fr;
+
+  opacity: 1;
+  transform: translateY(0);
+
+  transition:
+    grid-template-rows 220ms cubic-bezier(.2,.8,.2,1),
+    opacity 140ms ease-out,
+    transform 160ms ease-out;
+}
+
+/* Add padding only when open (stable + no jump) */
+#pt-root details[open].pt-details > .pt-details-body,
+#pt-root details[open].pt-explain > .pt-explain-body {
+  padding-top: 14px !important;
+  padding-bottom: 14px !important;
+}
+
+/* Hover */
+#pt-root .pt-summary:hover {
+  background: rgba(243, 244, 246, 0.6);
+}
+
+/* Chevron */
+#pt-root .pt-summary::after {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-right: 2px solid rgba(17, 24, 39, 0.55);
+  border-bottom: 2px solid rgba(17, 24, 39, 0.55);
+  transform: rotate(45deg);
+  transition: transform 220ms ease;
+  opacity: 0.9;
+  margin-left: 8px;
+}
+
+#pt-root .pt-details[open] .pt-summary::after {
+  transform: rotate(-135deg);
+}
+
+/* Explain summary chevron */
+#pt-root .pt-explain-summary {
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 180ms ease;
+  padding-right: 26px;
+}
+
+#pt-root .pt-explain-summary:hover {
+  background: rgba(243, 244, 246, 0.6);
+  border-radius: 10px;
+}
+
+#pt-root .pt-explain-summary::after {
+  content: "";
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  border-right: 2px solid rgba(17, 24, 39, 0.55);
+  border-bottom: 2px solid rgba(17, 24, 39, 0.55);
+  transform: translateY(-50%) rotate(45deg);
+  transition: transform 220ms ease;
+  opacity: 0.9;
+}
+
+#pt-root .pt-explain[open] .pt-explain-summary::after {
+  transform: translateY(-50%) rotate(-135deg);
 }

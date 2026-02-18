@@ -1,4 +1,6 @@
 // pt/helpers.js
+// ✅ Removed enhanceDetailsAnimation() to avoid CSS-vs-JS animation conflicts
+//    (details/summary animation is now CSS-only, reliable in WP)
 
 export function debounce(fn, wait = 800) {
 	let t = null;
@@ -59,13 +61,33 @@ export function readPaceFromInputs(minEl, secEl, { allowBlank = true } = {}) {
 	if (bothBlank) return allowBlank ? null : null;
 
 	const min = toIntOrNull(minRaw);
+
+	// ✅ Allow 1-digit seconds like "5"
 	const sec = secRaw === '' ? 0 : toIntOrNull(secRaw);
 
 	if (min === null || sec === null) return null;
 	if (min < 0) return null;
 	if (sec < 0 || sec >= 60) return null;
 
+	// ✅ Normalize seconds to 2-digit display
+	secEl.value = String(sec).padStart(2, '0');
+
 	return min * 60 + sec;
+}
+
+export function attachSecondAutoFormat(secEl) {
+	if (!secEl) return;
+
+	secEl.addEventListener('blur', () => {
+		const raw = String(secEl.value ?? '').trim();
+		if (!raw) return;
+
+		const sec = toIntOrNull(raw);
+		if (sec === null) return;
+		if (sec < 0 || sec >= 60) return;
+
+		secEl.value = String(sec).padStart(2, '0');
+	});
 }
 
 export function writePaceToInputs(minEl, secEl, paceSec) {
